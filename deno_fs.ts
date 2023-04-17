@@ -18,6 +18,10 @@ export async function isWritable(key: string[] = []): Promise<boolean> {
   })).state === "granted";
 }
 
+export function hasItem(key: string[]): Promise<boolean> {
+  return exists(filepath(key), { isFile: true });
+}
+
 export async function getItem<T>(key: string[]): Promise<T | undefined> {
   try {
     return JSON.parse(await Deno.readTextFile(filepath(key)));
@@ -70,11 +74,15 @@ export async function* listItems<T>(
   }
 }
 
+export function close() {
+  return Promise.resolve();
+}
+
 function filepath(key: string[]) {
   return dirpath(key) + ".json";
 }
 
 function dirpath(key: string[] = []) {
-  const root = Deno.env.get("STORE_ROOT") ?? ".store";
+  const root = Deno.env.get("STORE_FS_ROOT") ?? ".store";
   return resolve(root, ...key);
 }

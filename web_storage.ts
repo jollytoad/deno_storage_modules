@@ -4,6 +4,10 @@ export function isWritable(_key?: string[]): Promise<boolean> {
   return Promise.resolve(true);
 }
 
+export function hasItem(key: string[]): Promise<boolean> {
+  return Promise.resolve(localStorage.getItem(storageKey(key)) !== null);
+}
+
 export function getItem<T>(key: string[]): Promise<T | undefined> {
   const json = localStorage.getItem(storageKey(key));
   if (typeof json === "string") {
@@ -39,6 +43,10 @@ export async function* listItems<T>(
       }
     }
   }
+}
+
+export function close() {
+  return Promise.resolve();
 }
 
 function storageKey(key: string[]) {

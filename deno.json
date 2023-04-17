@@ -1,0 +1,7 @@
+{
+  "tasks": {
+    "test:web_storage": "deno test --import-map=./import_map.web_storage.json",
+    "test:deno_fs": "deno test --allow-read --allow-write --allow-env --import-map=./import_map.deno_fs.json",
+    "test:deno_kv": "deno test --unstable --allow-env --import-map=./import_map.deno_kv.json"
+  }
+}

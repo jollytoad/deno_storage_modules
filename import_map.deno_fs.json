@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "$store": "./deno_fs.ts"
+  }
+}

@@ -16,32 +16,13 @@ via an import map, for example:
 
 ## Functions
 
-Each function takes a hierarchy key as an array of strings. It's up to the
+Each function takes a hierarchical key as an array of strings. It's up to the
 storage module how those are translated to the underlying storage. But it may be
 best to assume the first level key to be a grouping level, eg. a database name.
 
 Any JSON serializable value can be stored.
 
-### `isWritable(key?: string[]) => Promise<boolean>`
-
-Check whether the storage is writable in general, or at or below a particular
-key.
-
-### `getItem<T>(key: string[]) => Promise<T | undefined>`
-
-Fetch an item from the storage.
-
-### `setItem<T>(key: string[], value: T) => Promise<void>`
-
-Set an item in storage.
-
-### `removeItem<T>(key: string[]) => Promise<void>`
-
-Remove an item.
-
-### `listItems<T>(key?: string[]) => AsyncIterable<[string[], T]>`
-
-List all items beneath the given key.
+See the [types](./types.ts) for a description of the module interface.
 
 ## Modules
 
@@ -56,20 +37,31 @@ with the `localStorage` API.
 
 Import mapping: `"$store": "https://deno.land/x/storage_modules/web_storage.ts"`
 
-### filesystem.ts
+### deno_fs.ts
 
 This stores values in individual files under a directory hierarchy via
 [Deno fs](https://deno.land/api?s=Deno.readTextFile) calls. By default this is
 under a `.store` dir under the current working dir. This can be overridden via
-the environment var `STORE_ROOT`.
+the environment var `STORE_FS_ROOT`.
 
-Each level of the key become a directory up to the last segment which become a
+Each level of the key becomes a directory up to the last segment which becomes a
 JSON file.
 
 eg: `["one", "two", "three"]` -> `.store/one/two/three.json`
 
 Import mapping: `"$store": "https://deno.land/x/storage_modules/filesystem.ts"`
 
-## Future modules
+### deno_kv.ts
 
-Eventually we'll add modules to store in a remote database or KV store.
+Use the [Deno KV](https://deno.land/manual/runtime/kv) API for storage.
+
+Import mapping: `"$store": "https://deno.land/x/storage_modules/deno_kv.ts"`
+
+### deno_kv_fs.ts
+
+Combination of a readonly `deno_fs.ts` and `deno_kv.ts`, allowing fallback or
+immutable storage in the filesystem, and mutable storage via the KV store.
+
+By default the filesystem takes priority, and cannot be overridden by KV values,
+unless the env var `STORE_PRIMARY` is set to `kv`, in which case the KV always
+overrides filesystem values.
