@@ -37,7 +37,7 @@ Set an item in storage.
 
 ### `removeItem<T>(key: string[]) => Promise<void>`
 
-Remove an item, returns true if removed, or false if not.
+Remove an item.
 
 ### `listItems<T>(key?: string[]) => AsyncIterable<[string[], T]>`
 

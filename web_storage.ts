@@ -17,14 +17,9 @@ export function setItem<T>(key: string[], value: T): Promise<void> {
   return Promise.resolve();
 }
 
-export function removeItem<T>(key: string[]): Promise<boolean> {
-  const key_ = storageKey(key);
-  if (localStorage.getItem(key_)) {
-    localStorage.removeItem(key_);
-    return Promise.resolve(true);
-  } else {
-    return Promise.resolve(false);
-  }
+export function removeItem(key: string[]): Promise<void> {
+  localStorage.removeItem(storageKey(key));
+  return Promise.resolve();
 }
 
 export async function* listItems<T>(

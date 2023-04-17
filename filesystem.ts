@@ -8,19 +8,19 @@ import { ensureDir } from "https://deno.land/std@0.182.0/fs/ensure_dir.ts";
 import { exists } from "https://deno.land/std@0.182.0/fs/exists.ts";
 import { walk } from "https://deno.land/std@0.182.0/fs/walk.ts";
 
-export async function isWritable(namespace: string[] = []): Promise<boolean> {
+export async function isWritable(key: string[] = []): Promise<boolean> {
   if (Deno.env.get("DENO_DEPLOYMENT_ID")) {
     return false;
   }
   return (await Deno.permissions.query({
     name: "write",
-    path: dirpath(namespace),
+    path: dirpath(key),
   })).state === "granted";
 }
 
-export async function getItem<T>(namespace: string[]): Promise<T | undefined> {
+export async function getItem<T>(key: string[]): Promise<T | undefined> {
   try {
-    return JSON.parse(await Deno.readTextFile(filepath(namespace)));
+    return JSON.parse(await Deno.readTextFile(filepath(key)));
   } catch (e) {
     if (e.code === "ENOENT") {
       return undefined;
@@ -30,36 +30,34 @@ export async function getItem<T>(namespace: string[]): Promise<T | undefined> {
   }
 }
 
-export async function setItem<T>(namespace: string[], value: T): Promise<void> {
-  const path = filepath(namespace);
+export async function setItem<T>(key: string[], value: T): Promise<void> {
+  const path = filepath(key);
   await ensureDir(dirname(path));
   await Deno.writeTextFile(path, JSON.stringify(value));
 }
 
-export async function removeItem<T>(namespace: string[]): Promise<boolean> {
-  const path = filepath(namespace);
+export async function removeItem(key: string[]): Promise<void> {
+  const path = filepath(key);
   if (await exists(path, { isFile: true })) {
     await Deno.remove(path);
-    return true;
   }
-  return false;
 }
 
 export async function* listItems<T>(
-  namespacePrefix: string[] = [],
+  keyPrefix: string[] = [],
 ): AsyncIterable<[string[], T]> {
   const root = dirpath();
-  const path = dirpath(namespacePrefix);
+  const path = dirpath(keyPrefix);
 
   try {
     for await (const entry of walk(path)) {
       if (entry.isFile && entry.name.endsWith(".json")) {
-        const namespace = relative(root, entry.path.slice(0, -5)).split(
+        const key = relative(root, entry.path.slice(0, -5)).split(
           SEP_PATTERN,
         );
-        const item = await getItem<T>(namespace);
+        const item = await getItem<T>(key);
         if (item) {
-          yield [namespace, item];
+          yield [key, item];
         }
       }
     }
@@ -72,11 +70,11 @@ export async function* listItems<T>(
   }
 }
 
-function filepath(namespace: string[]) {
-  return dirpath(namespace) + ".json";
+function filepath(key: string[]) {
+  return dirpath(key) + ".json";
 }
 
-function dirpath(namespace: string[] = []) {
+function dirpath(key: string[] = []) {
   const root = Deno.env.get("STORE_ROOT") ?? ".store";
-  return resolve(root, ...namespace);
+  return resolve(root, ...key);
 }
