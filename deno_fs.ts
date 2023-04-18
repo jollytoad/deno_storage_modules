@@ -7,6 +7,18 @@ import {
 import { ensureDir } from "https://deno.land/std@0.182.0/fs/ensure_dir.ts";
 import { exists } from "https://deno.land/std@0.182.0/fs/exists.ts";
 import { walk } from "https://deno.land/std@0.182.0/fs/walk.ts";
+import type { StorageModule } from "./types.ts";
+
+({
+  isWritable,
+  hasItem,
+  getItem,
+  setItem,
+  removeItem,
+  listItems,
+  clearItems,
+  close,
+}) satisfies StorageModule;
 
 export async function isWritable(key: string[] = []): Promise<boolean> {
   if (Deno.env.get("DENO_DEPLOYMENT_ID")) {
@@ -65,6 +77,19 @@ export async function* listItems<T>(
         }
       }
     }
+  } catch (e) {
+    if (e.code === "ENOENT") {
+      return;
+    } else {
+      throw e;
+    }
+  }
+}
+
+export async function clearItems(keyPrefix: string[]): Promise<void> {
+  await removeItem(keyPrefix);
+  try {
+    await Deno.remove(dirpath(keyPrefix), { recursive: true });
   } catch (e) {
     if (e.code === "ENOENT") {
       return;

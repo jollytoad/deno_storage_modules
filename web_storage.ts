@@ -1,3 +1,16 @@
+import type { StorageModule } from "./types.ts";
+
+({
+  isWritable,
+  hasItem,
+  getItem,
+  setItem,
+  removeItem,
+  listItems,
+  clearItems,
+  close,
+}) satisfies StorageModule;
+
 const SEP = "/";
 
 export function isWritable(_key?: string[]): Promise<boolean> {
@@ -43,6 +56,22 @@ export async function* listItems<T>(
       }
     }
   }
+}
+
+export function clearItems(keyPrefix: string[]): Promise<void> {
+  const queued: string[] = [storageKey(keyPrefix)];
+
+  const prefix = keyPrefix.length ? storageKey(keyPrefix) + SEP : "";
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith(prefix)) {
+      queued.push(key);
+    }
+  }
+
+  queued.forEach((key) => localStorage.removeItem(key));
+
+  return Promise.resolve();
 }
 
 export function close() {

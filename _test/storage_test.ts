@@ -1,4 +1,5 @@
 import {
+  clearItems,
   close,
   getItem,
   hasItem,
@@ -6,13 +7,25 @@ import {
   removeItem,
   setItem,
 } from "$store";
+import * as $store from "$store";
+import { exists } from "https://deno.land/std@0.182.0/fs/exists.ts";
+import { basename } from "https://deno.land/std@0.182.0/path/posix.ts";
 import {
   assert,
   assertArrayIncludes,
   assertEquals,
 } from "https://deno.land/std@0.182.0/testing/asserts.ts";
+import type { StorageModule } from "../types.ts";
 
-await Deno.test("storage", async (t) => {
+const storage_module = basename(
+  new URL(import.meta.resolve("$store")).pathname,
+);
+
+$store satisfies StorageModule;
+
+await Deno.test(`storage module: ${storage_module}`, async (t) => {
+  await open();
+
   await t.step("setItem", async () => {
     await setItem(["store", "number"], 100);
     await setItem(["store", "string"], "string");
@@ -20,7 +33,6 @@ await Deno.test("storage", async (t) => {
     await setItem(["store", "false"], false);
     await setItem(["store", "object"], { one: 1 });
     await setItem(["store", "array"], ["a", "b", "c"]);
-    await close();
   });
 
   await t.step("hasItem", async () => {
@@ -30,7 +42,6 @@ await Deno.test("storage", async (t) => {
     assert(await hasItem(["store", "false"]));
     assert(await hasItem(["store", "object"]));
     assert(await hasItem(["store", "array"]));
-    await close();
   });
 
   await t.step("getItem", async () => {
@@ -40,7 +51,6 @@ await Deno.test("storage", async (t) => {
     assertEquals(await getItem(["store", "false"]), false);
     assertEquals(await getItem(["store", "object"]), { one: 1 });
     assertEquals(await getItem(["store", "array"]), ["a", "b", "c"]);
-    await close();
   });
 
   await t.step("listItems", async () => {
@@ -49,7 +59,6 @@ await Deno.test("storage", async (t) => {
     for await (const [_key, value] of listItems(["store"])) {
       assertArrayIncludes(list, [value]);
     }
-    await close();
   });
 
   await t.step("removeItem", async () => {
@@ -66,8 +75,54 @@ await Deno.test("storage", async (t) => {
       count++;
     }
 
-    assertEquals(count, 0);
-
-    await close();
+    assertEquals(count, 0, "Expected no items to be found");
   });
+
+  await t.step("removeItem does not recurse", async () => {
+    await setItem(["store", "nested", "item"], "here");
+
+    await removeItem(["store", "nested"]);
+
+    assert(await hasItem(["store", "nested", "item"]));
+  });
+
+  await t.step("clearItems", async () => {
+    await setItem(["store", "nested", "number"], 100);
+    await setItem(["store", "string"], "string");
+    await setItem(["store", "nested", "deeply", "true"], true);
+    await setItem(["store", "false"], false);
+    await setItem(["store", "object"], { one: 1 });
+    await setItem(["store", "array"], ["a", "b", "c"]);
+
+    await clearItems(["store"]);
+
+    assert(
+      !await hasItem(["store", "nested", "deeply", "true"]),
+      "Expected deeply nested item to no longer exist",
+    );
+
+    let count = 0;
+
+    for await (const _item of listItems(["store"])) {
+      count++;
+    }
+
+    assertEquals(count, 0, "Expected no items to be found");
+
+    switch (storage_module) {
+      case "deno_fs.ts":
+        assert(
+          !await exists(".store/store"),
+          "Expected .store/store folder to no longer exist",
+        );
+    }
+  });
+
+  await close();
 });
+
+async function open() {
+  // Just ensure that the underlying storage has been opened and is empty
+  await hasItem(["store"]);
+  await clearItems([]);
+}

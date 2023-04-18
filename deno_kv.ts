@@ -1,4 +1,17 @@
+import type { StorageModule } from "./types.ts";
+
 const consistency: Deno.KvConsistencyLevel = "eventual";
+
+({
+  isWritable,
+  hasItem,
+  getItem,
+  setItem,
+  removeItem,
+  listItems,
+  clearItems,
+  close,
+}) satisfies StorageModule;
 
 export function isWritable(_key?: string[]): Promise<boolean> {
   return Promise.resolve(true);
@@ -19,7 +32,9 @@ export async function setItem<T>(key: string[], value: T): Promise<void> {
 }
 
 export async function removeItem(key: string[]): Promise<void> {
-  await (await getKv(key)).delete(key);
+  if (key.length) {
+    await (await getKv(key)).delete(key);
+  }
 }
 
 export async function* listItems<T>(
@@ -30,6 +45,21 @@ export async function* listItems<T>(
   ) {
     yield [entry.key as string[], entry.value];
   }
+}
+
+export async function clearItems(prefix: string[]): Promise<void> {
+  const kv = await getKv(prefix);
+  let op = kv.atomic();
+
+  if (prefix.length) {
+    op = op.delete(prefix);
+  }
+
+  for await (const { key } of kv.list({ prefix }, { consistency })) {
+    op = op.delete(key);
+  }
+
+  await op.commit();
 }
 
 export async function close() {

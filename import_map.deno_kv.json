@@ -1,5 +1,0 @@
-{
-  "imports": {
-    "$store": "./deno_kv.ts"
-  }
-}
