@@ -9,7 +9,7 @@ via an import map, for example:
 ```json
 {
   "imports": {
-    "$store": "https://deno.land/x/storage_modules/filesystem.ts"
+    "$store": "https://deno.land/x/storage_modules/deno_fs.ts"
   }
 }
 ```
@@ -49,7 +49,7 @@ JSON file.
 
 eg: `["one", "two", "three"]` -> `.store/one/two/three.json`
 
-Import mapping: `"$store": "https://deno.land/x/storage_modules/filesystem.ts"`
+Import mapping: `"$store": "https://deno.land/x/storage_modules/deno_fs.ts"`
 
 ### deno_kv.ts
 

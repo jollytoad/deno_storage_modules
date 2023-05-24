@@ -3,11 +3,12 @@ import {
   relative,
   resolve,
   SEP_PATTERN,
-} from "https://deno.land/std@0.182.0/path/mod.ts";
-import { ensureDir } from "https://deno.land/std@0.182.0/fs/ensure_dir.ts";
-import { exists } from "https://deno.land/std@0.182.0/fs/exists.ts";
-import { walk } from "https://deno.land/std@0.182.0/fs/walk.ts";
-import type { StorageModule } from "./types.ts";
+} from "https://deno.land/std@0.188.0/path/mod.ts";
+import { ensureDir } from "https://deno.land/std@0.188.0/fs/ensure_dir.ts";
+import { exists } from "https://deno.land/std@0.188.0/fs/exists.ts";
+import { walk } from "https://deno.land/std@0.188.0/fs/walk.ts";
+import type { StorageKey, StorageModule } from "./types.ts";
+import { fromStrKey, toStrKey } from "./_key_util.ts";
 
 ({
   isWritable,
@@ -20,7 +21,7 @@ import type { StorageModule } from "./types.ts";
   close,
 }) satisfies StorageModule;
 
-export async function isWritable(key: string[] = []): Promise<boolean> {
+export async function isWritable(key: StorageKey = []): Promise<boolean> {
   if (Deno.env.get("DENO_DEPLOYMENT_ID")) {
     return false;
   }
@@ -30,11 +31,11 @@ export async function isWritable(key: string[] = []): Promise<boolean> {
   })).state === "granted";
 }
 
-export function hasItem(key: string[]): Promise<boolean> {
+export function hasItem(key: StorageKey): Promise<boolean> {
   return exists(filepath(key), { isFile: true });
 }
 
-export async function getItem<T>(key: string[]): Promise<T | undefined> {
+export async function getItem<T>(key: StorageKey): Promise<T | undefined> {
   try {
     return JSON.parse(await Deno.readTextFile(filepath(key)));
   } catch (e) {
@@ -46,13 +47,13 @@ export async function getItem<T>(key: string[]): Promise<T | undefined> {
   }
 }
 
-export async function setItem<T>(key: string[], value: T): Promise<void> {
+export async function setItem<T>(key: StorageKey, value: T): Promise<void> {
   const path = filepath(key);
   await ensureDir(dirname(path));
   await Deno.writeTextFile(path, JSON.stringify(value));
 }
 
-export async function removeItem(key: string[]): Promise<void> {
+export async function removeItem(key: StorageKey): Promise<void> {
   const path = filepath(key);
   if (await exists(path, { isFile: true })) {
     await Deno.remove(path);
@@ -60,8 +61,8 @@ export async function removeItem(key: string[]): Promise<void> {
 }
 
 export async function* listItems<T>(
-  keyPrefix: string[] = [],
-): AsyncIterable<[string[], T]> {
+  keyPrefix: StorageKey = [],
+): AsyncIterable<[StorageKey, T]> {
   const root = dirpath();
   const path = dirpath(keyPrefix);
 
@@ -73,7 +74,7 @@ export async function* listItems<T>(
         );
         const item = await getItem<T>(key);
         if (item) {
-          yield [key, item];
+          yield [fromStrKey(key), item];
         }
       }
     }
@@ -86,7 +87,7 @@ export async function* listItems<T>(
   }
 }
 
-export async function clearItems(keyPrefix: string[]): Promise<void> {
+export async function clearItems(keyPrefix: StorageKey): Promise<void> {
   await removeItem(keyPrefix);
   try {
     await Deno.remove(dirpath(keyPrefix), { recursive: true });
@@ -103,11 +104,11 @@ export function close() {
   return Promise.resolve();
 }
 
-function filepath(key: string[]) {
+function filepath(key: StorageKey) {
   return dirpath(key) + ".json";
 }
 
-function dirpath(key: string[] = []) {
+function dirpath(key: StorageKey = []) {
   const root = Deno.env.get("STORE_FS_ROOT") ?? ".store";
-  return resolve(root, ...key);
+  return resolve(root, ...toStrKey(key));
 }

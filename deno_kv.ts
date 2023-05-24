@@ -1,4 +1,4 @@
-import type { StorageModule } from "./types.ts";
+import type { StorageKey, StorageModule } from "./types.ts";
 
 const consistency: Deno.KvConsistencyLevel = "eventual";
 
@@ -13,41 +13,41 @@ const consistency: Deno.KvConsistencyLevel = "eventual";
   close,
 }) satisfies StorageModule;
 
-export function isWritable(_key?: string[]): Promise<boolean> {
+export function isWritable(_key?: StorageKey): Promise<boolean> {
   return Promise.resolve(true);
 }
 
-export async function hasItem<T>(key: string[]): Promise<boolean> {
+export async function hasItem<T>(key: StorageKey): Promise<boolean> {
   return (await (await getKv(key)).get<T>(key, { consistency }))
     .versionstamp !== null;
 }
 
-export async function getItem<T>(key: string[]): Promise<T | undefined> {
+export async function getItem<T>(key: StorageKey): Promise<T | undefined> {
   return (await (await getKv(key)).get<T>(key, { consistency })).value ??
     undefined;
 }
 
-export async function setItem<T>(key: string[], value: T): Promise<void> {
+export async function setItem<T>(key: StorageKey, value: T): Promise<void> {
   await (await getKv(key)).set(key, value);
 }
 
-export async function removeItem(key: string[]): Promise<void> {
+export async function removeItem(key: StorageKey): Promise<void> {
   if (key.length) {
     await (await getKv(key)).delete(key);
   }
 }
 
 export async function* listItems<T>(
-  prefix: string[] = [],
-): AsyncIterable<[readonly string[], T]> {
+  prefix: StorageKey = [],
+): AsyncIterable<[StorageKey, T]> {
   for await (
     const entry of (await getKv(prefix)).list<T>({ prefix }, { consistency })
   ) {
-    yield [entry.key as string[], entry.value];
+    yield [entry.key as StorageKey, entry.value];
   }
 }
 
-export async function clearItems(prefix: string[]): Promise<void> {
+export async function clearItems(prefix: StorageKey): Promise<void> {
   const kv = await getKv(prefix);
   let op = kv.atomic();
 
@@ -70,7 +70,7 @@ export async function close() {
 
 const kvCache = new Map<string, Deno.Kv>();
 
-async function getKv(_key: string[]): Promise<Deno.Kv> {
+async function getKv(_key: StorageKey): Promise<Deno.Kv> {
   const kvPath = Deno.env.get("STORE_KV_PATH") || undefined;
 
   let kv = kvCache.get(kvPath ?? "");

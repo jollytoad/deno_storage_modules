@@ -1,4 +1,4 @@
-export type StorageKey = readonly string[];
+export type StorageKey = readonly (string | number | boolean)[];
 
 /**
  * Describes the interface provided by each storage module
