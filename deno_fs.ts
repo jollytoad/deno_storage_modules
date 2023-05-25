@@ -54,9 +54,20 @@ export async function setItem<T>(key: StorageKey, value: T): Promise<void> {
 }
 
 export async function removeItem(key: StorageKey): Promise<void> {
-  const path = filepath(key);
+  let path = filepath(key);
   if (await exists(path, { isFile: true })) {
     await Deno.remove(path);
+
+    const root = dirpath();
+    path = dirname(path);
+    while (path !== root) {
+      try {
+        await Deno.remove(path);
+      } catch {
+        break;
+      }
+      path = resolve(path, "..");
+    }
   }
 }
 

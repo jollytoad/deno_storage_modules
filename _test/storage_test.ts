@@ -140,6 +140,24 @@ await Deno.test(`storage module: ${storage_module}`, async (t) => {
     }
   });
 
+  if (storage_module === "deno_fs.ts") {
+    await t.step("empty folders are deleted from fs", async () => {
+      await setItem(["store", "deeply", "nested", "item"], true);
+
+      assert(
+        await exists(".store/store/deeply/nested"),
+        "Expected .store/store/deeply/nested folder to exist",
+      );
+
+      await removeItem(["store", "deeply", "nested", "item"]);
+
+      assert(
+        !await exists(".store/store"),
+        "Expected .store/store folder to no longer exist",
+      );
+    });
+  }
+
   await close();
 });
 

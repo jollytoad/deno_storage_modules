@@ -14,8 +14,10 @@ export function fromStrKey(strKey: string[]): StorageKey {
   return strKey.map((k) => {
     if (k === "true") return true;
     if (k === "false") return false;
-    const n = Number.parseInt(k);
-    if (Number.isSafeInteger(n)) return n;
+    if (/^\d+$/.test(k)) {
+      const n = Number.parseInt(k);
+      if (Number.isSafeInteger(n)) return n;
+    }
     return k;
   });
 }
