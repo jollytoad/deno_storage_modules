@@ -8,13 +8,13 @@ import {
   setItem,
 } from "$store";
 import * as $store from "$store";
-import { exists } from "https://deno.land/std@0.188.0/fs/exists.ts";
-import { basename } from "https://deno.land/std@0.188.0/path/posix.ts";
+import { exists } from "https://deno.land/std@0.189.0/fs/exists.ts";
+import { basename } from "https://deno.land/std@0.189.0/path/posix.ts";
 import {
   assert,
   assertArrayIncludes,
   assertEquals,
-} from "https://deno.land/std@0.188.0/testing/asserts.ts";
+} from "https://deno.land/std@0.189.0/testing/asserts.ts";
 import type { StorageModule } from "../types.ts";
 
 const storage_module = basename(
