@@ -158,6 +158,32 @@ await Deno.test(`storage module: ${storage_module}`, async (t) => {
     });
   }
 
+  // Only KN & Web Storage are guaranteed to be ordered
+  if (storage_module === "deno_kv.ts" || storage_module === "web_storage.ts") {
+    await t.step("ordered items", async (t) => {
+      await t.step("populate list", async () => {
+        await setItem(["store_list", 2], 2);
+        await setItem(["store_list", 4], 4);
+        await setItem(["store_list", 3], 3);
+        await setItem(["store_list", 1], 1);
+      });
+
+      await t.step("in natural order", async () => {
+        const values = await gatherValues(listItems(["store_list"]));
+        assertEquals(values, [1, 2, 3, 4]);
+      });
+
+      await t.step("in reverse order", async () => {
+        const values = await gatherValues(listItems(["store_list"], true));
+        assertEquals(values, [4, 3, 2, 1]);
+      });
+
+      await t.step("delete list", async () => {
+        await removeItem(["store_list"]);
+      });
+    });
+  }
+
   await close();
 });
 
@@ -165,4 +191,14 @@ async function open() {
   // Just ensure that the underlying storage has been opened and is empty
   await hasItem(["store"]);
   await clearItems([]);
+}
+
+async function gatherValues<T>(
+  items: AsyncIterable<[unknown, T]>,
+): Promise<T[]> {
+  const result: T[] = [];
+  for await (const [_key, value] of items) {
+    result.push(value);
+  }
+  return result;
 }

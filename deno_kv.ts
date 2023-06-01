@@ -1,5 +1,7 @@
 import type { StorageKey, StorageModule } from "./types.ts";
 
+export type { StorageKey, StorageModule };
+
 const consistency: Deno.KvConsistencyLevel = "eventual";
 
 ({
@@ -37,11 +39,18 @@ export async function removeItem(key: StorageKey): Promise<void> {
   }
 }
 
+/**
+ * Supports ordering and reverse based on the KV natural key ordering.
+ */
 export async function* listItems<T>(
   prefix: StorageKey = [],
+  reverse = false,
 ): AsyncIterable<[StorageKey, T]> {
   for await (
-    const entry of (await getKv(prefix)).list<T>({ prefix }, { consistency })
+    const entry of (await getKv(prefix)).list<T>({ prefix }, {
+      consistency,
+      reverse,
+    })
   ) {
     yield [entry.key as StorageKey, entry.value];
   }

@@ -32,8 +32,12 @@ export interface StorageModule<T = unknown> {
 
   /**
    * List all items beneath the given key prefix.
+   * At present, guaranteed ordering and reverse support is optional.
    */
-  listItems(prefix?: StorageKey): AsyncIterable<[StorageKey, T]>;
+  listItems(
+    prefix?: StorageKey,
+    reverse?: boolean,
+  ): AsyncIterable<[StorageKey, T]>;
 
   /**
    * Delete item and sub items recursively and clean up.

@@ -10,6 +10,8 @@ import { walk } from "https://deno.land/std@0.189.0/fs/walk.ts";
 import type { StorageKey, StorageModule } from "./types.ts";
 import { fromStrKey, toStrKey } from "./_key_util.ts";
 
+export type { StorageKey, StorageModule };
+
 ({
   isWritable,
   hasItem,
@@ -71,8 +73,10 @@ export async function removeItem(key: StorageKey): Promise<void> {
   }
 }
 
+// TODO: Support reverse ordering
 export async function* listItems<T>(
   keyPrefix: StorageKey = [],
+  _reverse = false,
 ): AsyncIterable<[StorageKey, T]> {
   const root = dirpath();
   const path = dirpath(keyPrefix);

@@ -2,6 +2,8 @@ import * as kv from "./deno_kv.ts";
 import * as fs from "./deno_fs.ts";
 import type { StorageKey, StorageModule } from "./types.ts";
 
+export type { StorageKey, StorageModule };
+
 ({
   isWritable,
   hasItem,
@@ -46,13 +48,16 @@ export async function removeItem(key: StorageKey): Promise<void> {
 
 export async function* listItems<T>(
   prefix: StorageKey = [],
+  reverse = false,
 ): AsyncIterable<[StorageKey, T]> {
   if (isFsPrimary()) {
-    yield* fs.listItems(prefix);
-    yield* kv.listItems(prefix);
+    yield* fs.listItems(prefix, reverse);
+    // TODO: skip items already listed from FS
+    yield* kv.listItems(prefix, reverse);
   } else {
-    yield* kv.listItems(prefix);
-    yield* fs.listItems(prefix);
+    yield* kv.listItems(prefix, reverse);
+    // TODO: skip items already listed from KV
+    yield* fs.listItems(prefix, reverse);
   }
 }
 

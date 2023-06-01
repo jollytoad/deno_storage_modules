@@ -1,6 +1,8 @@
 import { fromStrKey, toStrKey } from "./_key_util.ts";
 import type { StorageKey, StorageModule } from "./types.ts";
 
+export type { StorageKey, StorageModule };
+
 ({
   isWritable,
   hasItem,
@@ -42,9 +44,15 @@ export function removeItem(key: StorageKey): Promise<void> {
 
 export async function* listItems<T>(
   keyPrefix: StorageKey = [],
+  reverse = false,
 ): AsyncIterable<[StorageKey, T]> {
   const prefix = keyPrefix.length ? storageKey(keyPrefix) + SEP : "";
-  for (let i = 0; i < localStorage.length; i++) {
+
+  for (
+    let i = reverse ? localStorage.length - 1 : 0;
+    reverse ? i >= 0 : i < localStorage.length;
+    reverse ? i-- : i++
+  ) {
     const key = localStorage.key(i);
     if (key && key.startsWith(prefix)) {
       const json = localStorage.getItem(key);
