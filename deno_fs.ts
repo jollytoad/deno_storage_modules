@@ -3,10 +3,10 @@ import {
   relative,
   resolve,
   SEP_PATTERN,
-} from "https://deno.land/std@0.189.0/path/mod.ts";
-import { ensureDir } from "https://deno.land/std@0.189.0/fs/ensure_dir.ts";
-import { exists } from "https://deno.land/std@0.189.0/fs/exists.ts";
-import { walk } from "https://deno.land/std@0.189.0/fs/walk.ts";
+} from "https://deno.land/std@0.192.0/path/mod.ts";
+import { ensureDir } from "https://deno.land/std@0.192.0/fs/ensure_dir.ts";
+import { exists } from "https://deno.land/std@0.192.0/fs/exists.ts";
+import { walk } from "https://deno.land/std@0.192.0/fs/walk.ts";
 import type { StorageKey, StorageModule } from "./types.ts";
 import { fromStrKey, toStrKey } from "./_key_util.ts";
 

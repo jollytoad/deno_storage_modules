@@ -4,6 +4,7 @@
     "test:deno_fs": "deno test --check --allow-read --allow-write --allow-env --import-map=./_test/import_map.deno_fs.json",
     "test:deno_kv": "deno test --check --unstable --allow-env --import-map=./_test/import_map.deno_kv.json",
     "test:deno_kv_fs": "deno test --check --unstable --allow-read --allow-env --import-map=./_test/import_map.deno_kv_fs.json",
-    "test": "deno task test:web_storage; deno task test:deno_fs; deno task test:deno_kv; deno task test:deno_kv_fs"
+    "test": "deno task test:web_storage; deno task test:deno_fs; deno task test:deno_kv; deno task test:deno_kv_fs",
+    "check": "deno fmt && deno lint && deno task test"
   }
 }
