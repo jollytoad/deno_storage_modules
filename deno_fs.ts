@@ -1,12 +1,10 @@
-import {
-  dirname,
-  relative,
-  resolve,
-  SEP_PATTERN,
-} from "https://deno.land/std@0.192.0/path/mod.ts";
-import { ensureDir } from "https://deno.land/std@0.192.0/fs/ensure_dir.ts";
-import { exists } from "https://deno.land/std@0.192.0/fs/exists.ts";
-import { walk } from "https://deno.land/std@0.192.0/fs/walk.ts";
+import { dirname } from "https://deno.land/std@0.208.0/path/dirname.ts";
+import { relative } from "https://deno.land/std@0.208.0/path/relative.ts";
+import { resolve } from "https://deno.land/std@0.208.0/path/resolve.ts";
+import { SEP_PATTERN } from "https://deno.land/std@0.208.0/path/separator.ts";
+import { ensureDir } from "https://deno.land/std@0.208.0/fs/ensure_dir.ts";
+import { exists } from "https://deno.land/std@0.208.0/fs/exists.ts";
+import { walk } from "https://deno.land/std@0.208.0/fs/walk.ts";
 import type { StorageKey, StorageModule } from "./types.ts";
 import { fromStrKey, toStrKey } from "./_key_util.ts";
 

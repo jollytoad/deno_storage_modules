@@ -8,18 +8,14 @@ import {
   setItem,
 } from "$store";
 import * as $store from "$store";
-import { exists } from "https://deno.land/std@0.192.0/fs/exists.ts";
-import { basename } from "https://deno.land/std@0.192.0/path/posix.ts";
-import {
-  assert,
-  assertArrayIncludes,
-  assertEquals,
-} from "https://deno.land/std@0.192.0/testing/asserts.ts";
+import { exists } from "https://deno.land/std@0.208.0/fs/exists.ts";
+import { basename } from "https://deno.land/std@0.208.0/url/basename.ts";
+import { assert } from "https://deno.land/std@0.208.0/assert/assert.ts";
+import { assertArrayIncludes } from "https://deno.land/std@0.208.0/assert/assert_array_includes.ts";
+import { assertEquals } from "https://deno.land/std@0.208.0/assert/assert_equals.ts";
 import type { StorageModule } from "../types.ts";
 
-const storage_module = basename(
-  new URL(import.meta.resolve("$store")).pathname,
-);
+const storage_module = basename(import.meta.resolve("$store"));
 
 $store satisfies StorageModule;
 
