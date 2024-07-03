@@ -32,6 +32,12 @@
   "remote": {},
   "workspace": {
     "dependencies": [
+      "jsr:@jollytoad/store-common@^0.1.0",
+      "jsr:@jollytoad/store-deno-fs@^0.1.0",
+      "jsr:@jollytoad/store-deno-kv-fs@^0.1.0",
+      "jsr:@jollytoad/store-deno-kv@^0.1.0",
+      "jsr:@jollytoad/store-web-storage@^0.1.0",
+      "jsr:@jollytoad/store@^0.1.0",
       "jsr:@std/assert@^1.0.0-rc.3",
       "jsr:@std/fs@^1.0.0-rc.3",
       "jsr:@std/path@^1.0.0-rc.3",
