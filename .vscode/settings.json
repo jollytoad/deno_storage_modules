@@ -1,8 +1,6 @@
 {
   "deno.enable": true,
   "deno.lint": true,
-  "deno.unstable": true,
-  "deno.importMap": "./_test/import_map.web_storage.json",
   "editor.defaultFormatter": "denoland.vscode-deno",
   "editor.tabSize": 2
 }

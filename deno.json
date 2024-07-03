@@ -1,10 +1,28 @@
 {
+  "unstable": [
+    "kv"
+  ],
   "tasks": {
-    "test:web_storage": "deno test --check --import-map=./_test/import_map.web_storage.json",
-    "test:deno_fs": "deno test --check --allow-read --allow-write --allow-env --import-map=./_test/import_map.deno_fs.json",
-    "test:deno_kv": "deno test --check --unstable --allow-env --import-map=./_test/import_map.deno_kv.json",
-    "test:deno_kv_fs": "deno test --check --unstable --allow-read --allow-env --import-map=./_test/import_map.deno_kv_fs.json",
-    "test": "deno task test:web_storage; deno task test:deno_fs; deno task test:deno_kv; deno task test:deno_kv_fs",
-    "check": "deno fmt && deno lint && deno task test"
+    "test": "deno test --allow-env --allow-read --allow-write --allow-net",
+    "reload": "deno cache --reload **/*.ts jsr:@check/deps",
+    "check": "deno check **/*.ts",
+    "lint": "deno lint",
+    "ok": "deno fmt && deno task lint && deno task check && deno task test && deno publish --dry-run --allow-dirty",
+    "outdated": "deno run --allow-read=. --allow-net=jsr.io,registry.npmjs.org jsr:@check/deps",
+    "lock": "rm -f deno.lock && deno task check"
+  },
+  "workspaces": [
+    "./store",
+    "./store-common",
+    "./store-deno-fs",
+    "./store-deno-kv",
+    "./store-deno-kv-fs",
+    "./store-web-storage"
+  ],
+  "imports": {
+    "@std/assert": "jsr:@std/assert@^1.0.0-rc.3",
+    "@std/fs": "jsr:@std/fs@^1.0.0-rc.3",
+    "@std/path": "jsr:@std/path@^1.0.0-rc.3",
+    "@std/url": "jsr:@std/url@^1.0.0-rc.2"
   }
 }

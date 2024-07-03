@@ -1,5 +1,5 @@
-import { fromStrKey, toStrKey } from "./_key_util.ts";
-import type { StorageKey, StorageModule } from "./types.ts";
+import { fromStrKey, toStrKey } from "@jollytoad/store-common/key-utils";
+import type { StorageKey, StorageModule } from "@jollytoad/store-common/types";
 
 export type { StorageKey, StorageModule };
 
@@ -12,9 +12,14 @@ export type { StorageKey, StorageModule };
   listItems,
   clearItems,
   close,
+  url,
 }) satisfies StorageModule;
 
 const SEP = "/";
+
+export function url(): Promise<string> {
+  return Promise.resolve(import.meta.url);
+}
 
 export function isWritable(_key?: StorageKey): Promise<boolean> {
   return Promise.resolve(true);
@@ -83,7 +88,7 @@ export function clearItems(keyPrefix: StorageKey): Promise<void> {
   return Promise.resolve();
 }
 
-export function close() {
+export function close(): Promise<void> {
   return Promise.resolve();
 }
 

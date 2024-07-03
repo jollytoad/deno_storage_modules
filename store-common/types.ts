@@ -48,4 +48,9 @@ export interface StorageModule<T = unknown> {
    * Close all associated resources.
    */
   close(): Promise<void>;
+
+  /**
+   * Returns the `import.meta.url` of the module.
+   */
+  url(): Promise<string>;
 }

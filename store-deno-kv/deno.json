@@ -1,0 +1,7 @@
+{
+  "name": "@jollytoad/store-deno-kv",
+  "version": "0.1.0",
+  "exports": {
+    ".": "./mod.ts"
+  }
+}

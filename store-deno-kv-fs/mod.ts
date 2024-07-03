@@ -1,6 +1,6 @@
-import * as kv from "./deno_kv.ts";
-import * as fs from "./deno_fs.ts";
-import type { StorageKey, StorageModule } from "./types.ts";
+import * as kv from "@jollytoad/store-deno-kv";
+import * as fs from "@jollytoad/store-deno-fs";
+import type { StorageKey, StorageModule } from "@jollytoad/store-common/types";
 
 export type { StorageKey, StorageModule };
 
@@ -13,7 +13,12 @@ export type { StorageKey, StorageModule };
   listItems,
   clearItems,
   close,
+  url,
 }) satisfies StorageModule;
+
+export function url(): Promise<string> {
+  return Promise.resolve(import.meta.url);
+}
 
 export async function isWritable(key: StorageKey = []): Promise<boolean> {
   if (key.length && isFsPrimary() && await fs.hasItem(key)) {
@@ -65,7 +70,7 @@ export async function clearItems(prefix: StorageKey) {
   await kv.clearItems(prefix);
 }
 
-export function close() {
+export function close(): Promise<void> {
   return kv.close();
 }
 

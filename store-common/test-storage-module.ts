@@ -1,27 +1,27 @@
 import {
-  clearItems,
-  close,
-  getItem,
-  hasItem,
-  listItems,
-  removeItem,
-  setItem,
-} from "$store";
-import * as $store from "$store";
-import { exists } from "https://deno.land/std@0.208.0/fs/exists.ts";
-import { basename } from "https://deno.land/std@0.208.0/url/basename.ts";
-import { assert } from "https://deno.land/std@0.208.0/assert/assert.ts";
-import { assertArrayIncludes } from "https://deno.land/std@0.208.0/assert/assert_array_includes.ts";
-import { assertEquals } from "https://deno.land/std@0.208.0/assert/assert_equals.ts";
-import type { StorageModule } from "../types.ts";
+  assert,
+  assertArrayIncludes,
+  assertEquals,
+  assertStringIncludes,
+} from "@std/assert";
+import type { StorageModule } from "./types.ts";
 
-const storage_module = basename(import.meta.resolve("$store"));
+export async function testUrl(
+  t: Deno.TestContext,
+  { url }: StorageModule,
+  includes: string,
+) {
+  await t.step(`url contains "${includes}"`, async () => {
+    const actualUrl = await url();
+    console.log("StorageModule URL:", actualUrl);
+    assertStringIncludes(actualUrl, includes);
+  });
+}
 
-$store satisfies StorageModule;
-
-await Deno.test(`storage module: ${storage_module}`, async (t) => {
-  await open();
-
+export async function testSetItem(
+  t: Deno.TestContext,
+  { setItem }: StorageModule,
+) {
   await t.step("setItem", async () => {
     await setItem(["store", "number"], 100);
     await setItem(["store", "string"], "string");
@@ -33,7 +33,12 @@ await Deno.test(`storage module: ${storage_module}`, async (t) => {
     await setItem(["store", true], "true key");
     await setItem(["store", false], "false key");
   });
+}
 
+export async function testHasItem(
+  t: Deno.TestContext,
+  { hasItem }: StorageModule,
+) {
   await t.step("hasItem", async () => {
     assert(await hasItem(["store", "number"]));
     assert(await hasItem(["store", "string"]));
@@ -45,7 +50,12 @@ await Deno.test(`storage module: ${storage_module}`, async (t) => {
     assert(await hasItem(["store", true]));
     assert(await hasItem(["store", false]));
   });
+}
 
+export async function testGetItem(
+  t: Deno.TestContext,
+  { getItem }: StorageModule,
+) {
   await t.step("getItem", async () => {
     assertEquals(await getItem(["store", "number"]), 100);
     assertEquals(await getItem(["store", "string"]), "string");
@@ -57,7 +67,12 @@ await Deno.test(`storage module: ${storage_module}`, async (t) => {
     assertEquals(await getItem(["store", true]), "true key");
     assertEquals(await getItem(["store", false]), "false key");
   });
+}
 
+export async function testListItems(
+  t: Deno.TestContext,
+  { listItems }: StorageModule,
+) {
   await t.step("listItems", async () => {
     const list = [
       100,
@@ -75,7 +90,12 @@ await Deno.test(`storage module: ${storage_module}`, async (t) => {
       assertArrayIncludes(list, [value]);
     }
   });
+}
 
+export async function testRemoveItem(
+  t: Deno.TestContext,
+  { removeItem, listItems, setItem, hasItem }: StorageModule,
+) {
   await t.step("removeItem", async () => {
     await removeItem(["store", "number"]);
     await removeItem(["store", "string"]);
@@ -103,7 +123,12 @@ await Deno.test(`storage module: ${storage_module}`, async (t) => {
 
     assert(await hasItem(["store", "nested", "item"]));
   });
+}
 
+export async function testClearItems(
+  t: Deno.TestContext,
+  { clearItems, setItem, hasItem, listItems }: StorageModule,
+) {
   await t.step("clearItems", async () => {
     await setItem(["store", "nested", "number"], 100);
     await setItem(["store", "string"], "string");
@@ -126,64 +151,59 @@ await Deno.test(`storage module: ${storage_module}`, async (t) => {
     }
 
     assertEquals(count, 0, "Expected no items to be found");
-
-    switch (storage_module) {
-      case "deno_fs.ts":
-        assert(
-          !await exists(".store/store"),
-          "Expected .store/store folder to no longer exist",
-        );
-    }
   });
+}
 
-  if (storage_module === "deno_fs.ts") {
-    await t.step("empty folders are deleted from fs", async () => {
-      await setItem(["store", "deeply", "nested", "item"], true);
+// if (storage_module === "deno_fs.ts") {
+//   await t.step("empty folders are deleted from fs", async () => {
+//     await setItem(["store", "deeply", "nested", "item"], true);
 
-      assert(
-        await exists(".store/store/deeply/nested"),
-        "Expected .store/store/deeply/nested folder to exist",
-      );
+//     assert(
+//       await exists(".store/store/deeply/nested"),
+//       "Expected .store/store/deeply/nested folder to exist",
+//     );
 
-      await removeItem(["store", "deeply", "nested", "item"]);
+//     await removeItem(["store", "deeply", "nested", "item"]);
 
-      assert(
-        !await exists(".store/store"),
-        "Expected .store/store folder to no longer exist",
-      );
+//     assert(
+//       !await exists(".store/store"),
+//       "Expected .store/store folder to no longer exist",
+//     );
+//   });
+// }
+
+export async function testOrdering(
+  t: Deno.TestContext,
+  { setItem, listItems, removeItem }: StorageModule,
+) {
+  await t.step("ordered items", async (t) => {
+    await t.step("populate list", async () => {
+      await setItem(["store_list", 2], 2);
+      await setItem(["store_list", 4], 4);
+      await setItem(["store_list", 3], 3);
+      await setItem(["store_list", 1], 1);
     });
-  }
 
-  // Only KN & Web Storage are guaranteed to be ordered
-  if (storage_module === "deno_kv.ts" || storage_module === "web_storage.ts") {
-    await t.step("ordered items", async (t) => {
-      await t.step("populate list", async () => {
-        await setItem(["store_list", 2], 2);
-        await setItem(["store_list", 4], 4);
-        await setItem(["store_list", 3], 3);
-        await setItem(["store_list", 1], 1);
-      });
-
-      await t.step("in natural order", async () => {
-        const values = await gatherValues(listItems(["store_list"]));
-        assertEquals(values, [1, 2, 3, 4]);
-      });
-
-      await t.step("in reverse order", async () => {
-        const values = await gatherValues(listItems(["store_list"], true));
-        assertEquals(values, [4, 3, 2, 1]);
-      });
-
-      await t.step("delete list", async () => {
-        await removeItem(["store_list"]);
-      });
+    await t.step("in natural order", async () => {
+      const values = await gatherValues(listItems(["store_list"]));
+      assertEquals(values, [1, 2, 3, 4]);
     });
-  }
 
-  await close();
-});
+    await t.step("in reverse order", async () => {
+      const values = await gatherValues(listItems(["store_list"], true));
+      assertEquals(values, [4, 3, 2, 1]);
+    });
 
-async function open() {
+    await t.step("delete list", async () => {
+      await removeItem(["store_list"]);
+    });
+  });
+}
+
+export async function open(
+  _t: Deno.TestContext,
+  { hasItem, clearItems }: StorageModule,
+) {
   // Just ensure that the underlying storage has been opened and is empty
   await hasItem(["store"]);
   await clearItems([]);

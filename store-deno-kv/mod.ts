@@ -1,4 +1,4 @@
-import type { StorageKey, StorageModule } from "./types.ts";
+import type { StorageKey, StorageModule } from "@jollytoad/store-common/types";
 
 export type { StorageKey, StorageModule };
 
@@ -13,7 +13,12 @@ const consistency: Deno.KvConsistencyLevel = "eventual";
   listItems,
   clearItems,
   close,
+  url,
 }) satisfies StorageModule;
+
+export function url(): Promise<string> {
+  return Promise.resolve(import.meta.url);
+}
 
 export function isWritable(_key?: StorageKey): Promise<boolean> {
   return Promise.resolve(true);
@@ -71,7 +76,7 @@ export async function clearItems(prefix: StorageKey): Promise<void> {
   await op.commit();
 }
 
-export async function close() {
+export async function close(): Promise<void> {
   const kvs = [...kvCache.values()];
   kvCache.clear();
   await Promise.all(kvs.map((kv) => kv.close()));

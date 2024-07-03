@@ -1,12 +1,12 @@
-import { dirname } from "https://deno.land/std@0.208.0/path/dirname.ts";
-import { relative } from "https://deno.land/std@0.208.0/path/relative.ts";
-import { resolve } from "https://deno.land/std@0.208.0/path/resolve.ts";
-import { SEP_PATTERN } from "https://deno.land/std@0.208.0/path/separator.ts";
-import { ensureDir } from "https://deno.land/std@0.208.0/fs/ensure_dir.ts";
-import { exists } from "https://deno.land/std@0.208.0/fs/exists.ts";
-import { walk } from "https://deno.land/std@0.208.0/fs/walk.ts";
-import type { StorageKey, StorageModule } from "./types.ts";
-import { fromStrKey, toStrKey } from "./_key_util.ts";
+import { dirname } from "@std/path/dirname";
+import { relative } from "@std/path/relative";
+import { resolve } from "@std/path/resolve";
+import { SEPARATOR_PATTERN } from "@std/path/constants";
+import { ensureDir } from "@std/fs/ensure-dir";
+import { exists } from "@std/fs/exists";
+import { walk } from "@std/fs/walk";
+import type { StorageKey, StorageModule } from "@jollytoad/store-common/types";
+import { fromStrKey, toStrKey } from "@jollytoad/store-common/key-utils";
 
 export type { StorageKey, StorageModule };
 
@@ -19,7 +19,12 @@ export type { StorageKey, StorageModule };
   listItems,
   clearItems,
   close,
+  url,
 }) satisfies StorageModule;
+
+export function url(): Promise<string> {
+  return Promise.resolve(import.meta.url);
+}
 
 export async function isWritable(key: StorageKey = []): Promise<boolean> {
   if (Deno.env.get("DENO_DEPLOYMENT_ID")) {
@@ -83,7 +88,7 @@ export async function* listItems<T>(
     for await (const entry of walk(path)) {
       if (entry.isFile && entry.name.endsWith(".json")) {
         const key = relative(root, entry.path.slice(0, -5)).split(
-          SEP_PATTERN,
+          SEPARATOR_PATTERN,
         );
         const item = await getItem<T>(key);
         if (item) {
@@ -113,7 +118,7 @@ export async function clearItems(keyPrefix: StorageKey): Promise<void> {
   }
 }
 
-export function close() {
+export function close(): Promise<void> {
   return Promise.resolve();
 }
 

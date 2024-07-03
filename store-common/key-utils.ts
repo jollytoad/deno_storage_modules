@@ -1,5 +1,8 @@
 import { StorageKey } from "./types.ts";
 
+/**
+ * Convert a {@linkcode StorageKey} to an array of strings
+ */
 export function toStrKey(key: StorageKey = []): string[] {
   return key.map((k) =>
     typeof k === "string"
@@ -10,6 +13,9 @@ export function toStrKey(key: StorageKey = []): string[] {
   );
 }
 
+/**
+ * Convert an array of strings to a {@linkcode StorageKey}
+ */
 export function fromStrKey(strKey: string[]): StorageKey {
   return strKey.map((k) => {
     if (k === "true") return true;
