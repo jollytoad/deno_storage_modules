@@ -18,6 +18,16 @@ export async function testUrl(
   });
 }
 
+export async function testIsWriteable(
+  t: Deno.TestContext,
+  { isWritable }: StorageModule,
+  expected = true,
+) {
+  await t.step(`isWriteable() to be ${expected}`, async () => {
+    assertEquals(await isWritable(), expected);
+  });
+}
+
 export async function testSetItem(
   t: Deno.TestContext,
   { setItem }: StorageModule,
@@ -72,20 +82,19 @@ export async function testGetItem(
 export async function testListItems(
   t: Deno.TestContext,
   { listItems }: StorageModule,
+  list = [
+    100,
+    "string",
+    true,
+    false,
+    { one: 1 },
+    ["a", "b", "c"],
+    "number key",
+    "true key",
+    "false key",
+  ],
 ) {
   await t.step("listItems", async () => {
-    const list = [
-      100,
-      "string",
-      true,
-      false,
-      { one: 1 },
-      ["a", "b", "c"],
-      "number key",
-      "true key",
-      "false key",
-    ];
-
     for await (const [_key, value] of listItems(["store"])) {
       assertArrayIncludes(list, [value]);
     }
@@ -153,24 +162,6 @@ export async function testClearItems(
     assertEquals(count, 0, "Expected no items to be found");
   });
 }
-
-// if (storage_module === "deno_fs.ts") {
-//   await t.step("empty folders are deleted from fs", async () => {
-//     await setItem(["store", "deeply", "nested", "item"], true);
-
-//     assert(
-//       await exists(".store/store/deeply/nested"),
-//       "Expected .store/store/deeply/nested folder to exist",
-//     );
-
-//     await removeItem(["store", "deeply", "nested", "item"]);
-
-//     assert(
-//       !await exists(".store/store"),
-//       "Expected .store/store folder to no longer exist",
-//     );
-//   });
-// }
 
 export async function testOrdering(
   t: Deno.TestContext,

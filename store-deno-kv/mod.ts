@@ -84,7 +84,12 @@ export async function close(): Promise<void> {
 
 const kvCache = new Map<string, Deno.Kv>();
 
-async function getKv(_key: StorageKey): Promise<Deno.Kv> {
+/**
+ * Get the underlying `Deno.Kv` database.
+ *
+ * Useful to be able to perform more advanced transactional operations where necessary.
+ */
+export async function getKv(_key: StorageKey): Promise<Deno.Kv> {
   const kvPath = Deno.env.get("STORE_KV_PATH") || undefined;
 
   let kv = kvCache.get(kvPath ?? "");

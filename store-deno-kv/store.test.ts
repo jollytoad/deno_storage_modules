@@ -3,6 +3,7 @@ import {
   testClearItems,
   testGetItem,
   testHasItem,
+  testIsWriteable,
   testListItems,
   testOrdering,
   testRemoveItem,
@@ -15,6 +16,7 @@ Deno.test("store-deno-kv", async (t) => {
   try {
     await open(t, store);
     await testUrl(t, store, "store-deno-kv");
+    await testIsWriteable(t, store);
     await testSetItem(t, store);
     await testHasItem(t, store);
     await testGetItem(t, store);

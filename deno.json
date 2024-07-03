@@ -17,18 +17,19 @@
     "./store-deno-kv",
     "./store-deno-kv-fs",
     "./store-web-storage",
+    "./store-no-op",
     "./store"
   ],
   "imports": {
-    "@jollytoad/store-common": "jsr:@jollytoad/store-common@^0.1.0",
-    "@jollytoad/store-deno-fs": "jsr:@jollytoad/store-deno-fs@^0.1.0",
-    "@jollytoad/store-deno-kv": "jsr:@jollytoad/store-deno-kv@^0.1.0",
-    "@jollytoad/store-deno-kv-fs": "jsr:@jollytoad/store-deno-kv-fs@^0.1.0",
-    "@jollytoad/store-web-storage": "jsr:@jollytoad/store-web-storage@^0.1.0",
-    "@jollytoad/store": "jsr:@jollytoad/store@^0.1.0",
+    "@cross/env": "jsr:@cross/env@^1.0.2",
+    "@jollytoad/store": "jsr:@jollytoad/store@^0.2.0",
+    "@jollytoad/store-common": "jsr:@jollytoad/store-common@^0.2.0",
+    "@jollytoad/store-deno-fs": "jsr:@jollytoad/store-deno-fs@^0.2.0",
+    "@jollytoad/store-deno-kv": "jsr:@jollytoad/store-deno-kv@^0.2.0",
+    "@jollytoad/store-deno-kv-fs": "jsr:@jollytoad/store-deno-kv-fs@^0.2.0",
+    "@jollytoad/store-web-storage": "jsr:@jollytoad/store-web-storage@^0.2.0",
     "@std/assert": "jsr:@std/assert@^1.0.0-rc.3",
     "@std/fs": "jsr:@std/fs@^1.0.0-rc.3",
-    "@std/path": "jsr:@std/path@^1.0.0-rc.3",
-    "@std/url": "jsr:@std/url@^1.0.0-rc.2"
+    "@std/path": "jsr:@std/path@^1.0.0-rc.3"
   }
 }

@@ -4,6 +4,7 @@ import {
   testClearItems,
   testGetItem,
   testHasItem,
+  testIsWriteable,
   testListItems,
   testRemoveItem,
   testSetItem,
@@ -17,6 +18,7 @@ Deno.test("store-deno-fs", async (t) => {
   try {
     await open(t, store);
     await testUrl(t, store, "store-deno-fs");
+    await testIsWriteable(t, store);
     await testSetItem(t, store);
     await testHasItem(t, store);
     await testGetItem(t, store);

@@ -2,13 +2,30 @@
   "version": "3",
   "packages": {
     "specifiers": {
+      "jsr:@cross/deepmerge@^1.0.0": "jsr:@cross/deepmerge@1.0.0",
+      "jsr:@cross/env@^1.0.2": "jsr:@cross/env@1.0.2",
+      "jsr:@cross/runtime@^1.0.0": "jsr:@cross/runtime@1.0.0",
       "jsr:@std/assert@^1.0.0-rc.3": "jsr:@std/assert@1.0.0-rc.3",
       "jsr:@std/fs@^1.0.0-rc.3": "jsr:@std/fs@1.0.0-rc.3",
       "jsr:@std/internal@^1.0.1": "jsr:@std/internal@1.0.1",
       "jsr:@std/path@1.0.0-rc.3": "jsr:@std/path@1.0.0-rc.3",
-      "jsr:@std/path@^1.0.0-rc.3": "jsr:@std/path@1.0.0-rc.3"
+      "jsr:@std/path@^1.0.0-rc.3": "jsr:@std/path@1.0.0-rc.3",
+      "npm:@types/node": "npm:@types/node@18.16.19"
     },
     "jsr": {
+      "@cross/deepmerge@1.0.0": {
+        "integrity": "1e1318a74e31ba1959b9aa0acae8bd417b806f74ffd25ac07c90e12f83ad6b1d"
+      },
+      "@cross/env@1.0.2": {
+        "integrity": "28501ad1043c218a5b00fe5db27ec62c01ab16371bbe1b9d738496f0a7c5eeb8",
+        "dependencies": [
+          "jsr:@cross/deepmerge@^1.0.0",
+          "jsr:@cross/runtime@^1.0.0"
+        ]
+      },
+      "@cross/runtime@1.0.0": {
+        "integrity": "dddecdf99182df13d50279d1e473f715e83d41961c5c22edd7bb0c4c3cf8a76a"
+      },
       "@std/assert@1.0.0-rc.3": {
         "integrity": "27fb4b1da846ea3f7f0504f9b2acf7c83a763387a88c497e94a62ca168c9a24e",
         "dependencies": [
@@ -27,21 +44,27 @@
       "@std/path@1.0.0-rc.3": {
         "integrity": "672b8f88b3b58b6e932052ae412f40fc063940fcdb228d12f80353bc6aff38c1"
       }
+    },
+    "npm": {
+      "@types/node@18.16.19": {
+        "integrity": "sha512-IXl7o+R9iti9eBW4Wg2hx1xQDig183jj7YLn8F7udNceyfkbn1ZxmzZXuak20gR40D7pIkIY1kYGx5VIGbaHKA==",
+        "dependencies": {}
+      }
     }
   },
   "remote": {},
   "workspace": {
     "dependencies": [
-      "jsr:@jollytoad/store-common@^0.1.0",
-      "jsr:@jollytoad/store-deno-fs@^0.1.0",
-      "jsr:@jollytoad/store-deno-kv-fs@^0.1.0",
-      "jsr:@jollytoad/store-deno-kv@^0.1.0",
-      "jsr:@jollytoad/store-web-storage@^0.1.0",
-      "jsr:@jollytoad/store@^0.1.0",
+      "jsr:@cross/env@^1.0.2",
+      "jsr:@jollytoad/store-common@^0.2.0",
+      "jsr:@jollytoad/store-deno-fs@^0.2.0",
+      "jsr:@jollytoad/store-deno-kv-fs@^0.2.0",
+      "jsr:@jollytoad/store-deno-kv@^0.2.0",
+      "jsr:@jollytoad/store-web-storage@^0.2.0",
+      "jsr:@jollytoad/store@^0.2.0",
       "jsr:@std/assert@^1.0.0-rc.3",
       "jsr:@std/fs@^1.0.0-rc.3",
-      "jsr:@std/path@^1.0.0-rc.3",
-      "jsr:@std/url@^1.0.0-rc.2"
+      "jsr:@std/path@^1.0.0-rc.3"
     ],
     "members": {
       "@jollytoad/store": {},
@@ -49,6 +72,7 @@
       "@jollytoad/store-deno-fs": {},
       "@jollytoad/store-deno-kv": {},
       "@jollytoad/store-deno-kv-fs": {},
+      "@jollytoad/store-no-op": {},
       "@jollytoad/store-web-storage": {}
     }
   }

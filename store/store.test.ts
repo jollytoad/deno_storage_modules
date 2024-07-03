@@ -1,3 +1,4 @@
+import { assertRejects } from "@std/assert";
 import {
   open,
   testClearItems,
@@ -35,6 +36,8 @@ Deno.test("store - via STORAGE_MODULE", async (t) => {
 
 Deno.test("store - via setStore()", async (t) => {
   try {
+    Deno.env.delete("STORAGE_MODULE");
+
     store.setStore(import("../store-deno-kv/mod.ts"));
 
     await open(t, store);
@@ -48,4 +51,16 @@ Deno.test("store - via setStore()", async (t) => {
   } finally {
     await store.close();
   }
+});
+
+Deno.test("store - no store selected throws an error", async () => {
+  Deno.env.delete("STORAGE_MODULE");
+
+  store.setStore();
+
+  await assertRejects(
+    () => store.getStore(),
+    Error,
+    "A StorageModule was not selected",
+  );
 });

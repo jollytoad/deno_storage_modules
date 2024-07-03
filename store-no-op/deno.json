@@ -1,5 +1,5 @@
 {
-  "name": "@jollytoad/store-web-storage",
+  "name": "@jollytoad/store-no-op",
   "version": "0.2.0",
   "exports": {
     ".": "./mod.ts"

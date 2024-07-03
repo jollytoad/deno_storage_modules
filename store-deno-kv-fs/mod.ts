@@ -66,12 +66,16 @@ export async function* listItems<T>(
   }
 }
 
-export async function clearItems(prefix: StorageKey) {
+export async function clearItems(prefix: StorageKey): Promise<void> {
   await kv.clearItems(prefix);
 }
 
 export function close(): Promise<void> {
   return kv.close();
+}
+
+export function getKv(key: StorageKey): Promise<Deno.Kv> {
+  return kv.getKv(key);
 }
 
 function isFsPrimary(): boolean {

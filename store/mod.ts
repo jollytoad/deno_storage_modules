@@ -24,14 +24,7 @@ export function setStore(
 
 export async function getStore(): Promise<StorageModule> {
   if (!store) {
-    const moduleSpecifier = Deno.env.get("STORAGE_MODULE");
-    if (moduleSpecifier) {
-      store = import(import.meta.resolve(moduleSpecifier));
-    } else {
-      throw new Error(
-        "A StorageModule was not selected, either via `setStore()`, or the `STORAGE_MODULE` env var",
-      );
-    }
+    store = (await import("./_from_env.ts")).fromEnv();
   }
   return await store;
 }
@@ -70,12 +63,9 @@ export async function* listItems<T>(
 }
 
 export async function clearItems(prefix: StorageKey): Promise<void> {
-  await getStore();
   return (await getStore()).clearItems(prefix);
 }
 
 export async function close(): Promise<void> {
-  if (store) {
-    (await store)?.close();
-  }
+  (await store)?.close();
 }

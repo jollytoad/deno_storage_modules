@@ -147,6 +147,11 @@ overrides filesystem values.
 
 Import mapping: `"$store": "jsr:@jollytoad/store-deno-kv-fs"`
 
+### [no-op](https://jsr.io/@jollytoad/store-no-op)
+
+For the odd occasion when you want to disable storage entirely but not break
+your app. This implementation does nothing.
+
 ### Bring your own
 
 If these don't fulfil your needs then you can implement your own storage module
@@ -158,3 +163,4 @@ See the existing implementations for inspiration...
 - [deno-fs](./store-deno-fs/mod.ts)
 - [deno-kv](./store-deno-kv/mod.ts)
 - [deno-kv-fs](./store-deno-kv-fs/mod.ts)
+- [no-op](./store-no-op/mod.ts)
