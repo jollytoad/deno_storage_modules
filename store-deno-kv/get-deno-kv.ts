@@ -1,3 +1,9 @@
+/**
+ * This module provides the {@linkcode getDenoKv} function, to aid
+ * obtaining of `Deno.Kv` from any storage module if it's available.
+ *
+ * @module
+ */
 import type {
   DelegatedStore,
   StorageKey,
@@ -12,6 +18,9 @@ import type { ExposeDenoKv } from "./types.ts";
  * ```ts
  * import { getDenoKv } from "jsr:@jollytoad/store-deno-kv/get-deno-kv";
  * import * as store from "jsr:@jollytoad/store";
+ *
+ * // Set the delegate store, try changing this to "jsr:@jollytoad/store-deno-fs"
+ * store.setStore(import("jsr:@jollytoad/store-deno-kv"));
  *
  * const kv = await getDenoKv(store, ["foo"]);
  *
