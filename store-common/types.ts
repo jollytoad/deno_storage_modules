@@ -54,3 +54,23 @@ export interface StorageModule<T = unknown> {
    */
   url(): Promise<string>;
 }
+
+/**
+ * Additional functions for a store that delegates to another store
+ */
+export interface DelegatedStore {
+  /**
+   * Set the store to which to delegate all function calls
+   *
+   * @param storageModule may be the store, promise of the store, or undefined to remove any delegate store
+   */
+  setStore(storageModule?: StorageModule | Promise<StorageModule>): void;
+
+  /**
+   * Get the delegate store previously set via `setStore` or obtained via another mechanism (eg. env vars)
+   *
+   * @returns the promise of the store to which all operations are delegated
+   * @throws if no store has been set or can be loaded
+   */
+  getStore(): Promise<StorageModule>;
+}

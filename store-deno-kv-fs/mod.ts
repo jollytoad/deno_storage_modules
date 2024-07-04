@@ -74,8 +74,8 @@ export function close(): Promise<void> {
   return kv.close();
 }
 
-export function getKv(key: StorageKey): Promise<Deno.Kv> {
-  return kv.getKv(key);
+export function getDenoKv(key: StorageKey): Promise<Deno.Kv> {
+  return kv.getDenoKv(key);
 }
 
 function isFsPrimary(): boolean {

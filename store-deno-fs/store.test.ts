@@ -11,7 +11,7 @@ import {
   testUrl,
 } from "../store-common/test-storage-module.ts";
 import * as store from "./mod.ts";
-import { StorageModule } from "./mod.ts";
+import type { StorageModule } from "../store-common/types.ts";
 import { exists } from "@std/fs/exists";
 
 Deno.test("store-deno-fs", async (t) => {

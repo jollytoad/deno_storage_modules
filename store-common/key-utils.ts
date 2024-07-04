@@ -1,4 +1,4 @@
-import { StorageKey } from "./types.ts";
+import type { StorageKey } from "./types.ts";
 
 /**
  * Convert a {@linkcode StorageKey} to an array of strings

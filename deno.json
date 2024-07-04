@@ -11,6 +11,10 @@
     "outdated": "deno run --allow-read=. --allow-net=jsr.io,registry.npmjs.org jsr:@check/deps",
     "lock": "rm -f deno.lock && deno task check"
   },
+  "compilerOptions": {
+    "noUncheckedIndexedAccess": true,
+    "verbatimModuleSyntax": true
+  },
   "workspaces": [
     "./store-common",
     "./store-deno-fs",

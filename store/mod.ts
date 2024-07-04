@@ -1,6 +1,10 @@
-import type { StorageKey, StorageModule } from "@jollytoad/store-common/types";
+import type {
+  DelegatedStore,
+  StorageKey,
+  StorageModule,
+} from "@jollytoad/store-common/types";
 
-export type { StorageKey, StorageModule };
+export type { DelegatedStore, StorageKey, StorageModule };
 
 ({
   isWritable,
@@ -12,7 +16,9 @@ export type { StorageKey, StorageModule };
   clearItems,
   close,
   url,
-}) satisfies StorageModule;
+  setStore,
+  getStore,
+}) satisfies StorageModule & DelegatedStore;
 
 let store: Promise<StorageModule> | undefined;
 

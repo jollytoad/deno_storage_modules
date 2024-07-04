@@ -1,6 +1,7 @@
 import type { StorageKey, StorageModule } from "@jollytoad/store-common/types";
+import type { ExposeDenoKv } from "./types.ts";
 
-export type { StorageKey, StorageModule };
+export type { ExposeDenoKv, StorageKey, StorageModule };
 
 const consistency: Deno.KvConsistencyLevel = "eventual";
 
@@ -14,7 +15,8 @@ const consistency: Deno.KvConsistencyLevel = "eventual";
   clearItems,
   close,
   url,
-}) satisfies StorageModule;
+  getDenoKv,
+}) satisfies StorageModule & ExposeDenoKv;
 
 export function url(): Promise<string> {
   return Promise.resolve(import.meta.url);
@@ -25,22 +27,22 @@ export function isWritable(_key?: StorageKey): Promise<boolean> {
 }
 
 export async function hasItem<T>(key: StorageKey): Promise<boolean> {
-  return (await (await getKv(key)).get<T>(key, { consistency }))
+  return (await (await getDenoKv(key)).get<T>(key, { consistency }))
     .versionstamp !== null;
 }
 
 export async function getItem<T>(key: StorageKey): Promise<T | undefined> {
-  return (await (await getKv(key)).get<T>(key, { consistency })).value ??
+  return (await (await getDenoKv(key)).get<T>(key, { consistency })).value ??
     undefined;
 }
 
 export async function setItem<T>(key: StorageKey, value: T): Promise<void> {
-  await (await getKv(key)).set(key, value);
+  await (await getDenoKv(key)).set(key, value);
 }
 
 export async function removeItem(key: StorageKey): Promise<void> {
   if (key.length) {
-    await (await getKv(key)).delete(key);
+    await (await getDenoKv(key)).delete(key);
   }
 }
 
@@ -52,7 +54,7 @@ export async function* listItems<T>(
   reverse = false,
 ): AsyncIterable<[StorageKey, T]> {
   for await (
-    const entry of (await getKv(prefix)).list<T>({ prefix }, {
+    const entry of (await getDenoKv(prefix)).list<T>({ prefix }, {
       consistency,
       reverse,
     })
@@ -62,7 +64,7 @@ export async function* listItems<T>(
 }
 
 export async function clearItems(prefix: StorageKey): Promise<void> {
-  const kv = await getKv(prefix);
+  const kv = await getDenoKv(prefix);
   let op = kv.atomic();
 
   if (prefix.length) {
@@ -89,7 +91,7 @@ const kvCache = new Map<string, Deno.Kv>();
  *
  * Useful to be able to perform more advanced transactional operations where necessary.
  */
-export async function getKv(_key: StorageKey): Promise<Deno.Kv> {
+export async function getDenoKv(_key: StorageKey): Promise<Deno.Kv> {
   const kvPath = Deno.env.get("STORE_KV_PATH") || undefined;
 
   let kv = kvCache.get(kvPath ?? "");

@@ -1,5 +1,5 @@
 import { getEnv } from "@cross/env";
-import { StorageModule } from "@jollytoad/store-common/types";
+import type { StorageModule } from "@jollytoad/store-common/types";
 
 export function fromEnv(): Promise<StorageModule> {
   const moduleSpecifier = getEnv("STORAGE_MODULE");
