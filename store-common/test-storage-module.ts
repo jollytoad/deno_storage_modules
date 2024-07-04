@@ -6,6 +6,9 @@ import {
 } from "@std/assert";
 import type { StorageModule } from "./types.ts";
 
+/**
+ * Test the url() function of the given storage module.
+ */
 export async function testUrl(
   t: Deno.TestContext,
   { url }: StorageModule,
@@ -18,6 +21,9 @@ export async function testUrl(
   });
 }
 
+/**
+ * Test the isWriteable() function of the given storage module.
+ */
 export async function testIsWriteable(
   t: Deno.TestContext,
   { isWritable }: StorageModule,
@@ -28,6 +34,9 @@ export async function testIsWriteable(
   });
 }
 
+/**
+ * Test the setItem() function of the given storage module.
+ */
 export async function testSetItem(
   t: Deno.TestContext,
   { setItem }: StorageModule,
@@ -45,6 +54,10 @@ export async function testSetItem(
   });
 }
 
+/**
+ * Test the hasItem() function of the given storage module,
+ * this must be called after `testSetItem`.
+ */
 export async function testHasItem(
   t: Deno.TestContext,
   { hasItem }: StorageModule,
@@ -62,6 +75,10 @@ export async function testHasItem(
   });
 }
 
+/**
+ * Test the getItem() function of the given storage module,
+ * this must be called after `testSetItem`.
+ */
 export async function testGetItem(
   t: Deno.TestContext,
   { getItem }: StorageModule,
@@ -79,6 +96,10 @@ export async function testGetItem(
   });
 }
 
+/**
+ * Test the listItems() function of the given storage module,
+ * this must be called after `testSetItem`.
+ */
 export async function testListItems(
   t: Deno.TestContext,
   { listItems }: StorageModule,
@@ -101,6 +122,10 @@ export async function testListItems(
   });
 }
 
+/**
+ * Test the removeItem() function of the given storage module,
+ * this must be called after `testSetItem`.
+ */
 export async function testRemoveItem(
   t: Deno.TestContext,
   { removeItem, listItems, setItem, hasItem }: StorageModule,
@@ -134,6 +159,9 @@ export async function testRemoveItem(
   });
 }
 
+/**
+ * Test the clearItems() function of the given storage module.
+ */
 export async function testClearItems(
   t: Deno.TestContext,
   { clearItems, setItem, hasItem, listItems }: StorageModule,
@@ -163,6 +191,11 @@ export async function testClearItems(
   });
 }
 
+/**
+ * Test the storage module list items ordered by key,
+ * and supports listing in reverse.
+ * This test is optional for a storage module.
+ */
 export async function testOrdering(
   t: Deno.TestContext,
   { setItem, listItems, removeItem }: StorageModule,
@@ -191,11 +224,13 @@ export async function testOrdering(
   });
 }
 
+/**
+ * Ensure that the underlying storage has been opened and is empty
+ */
 export async function open(
   _t: Deno.TestContext,
   { hasItem, clearItems }: StorageModule,
 ) {
-  // Just ensure that the underlying storage has been opened and is empty
   await hasItem(["store"]);
   await clearItems([]);
 }

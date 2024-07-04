@@ -1,6 +1,9 @@
 import { getEnv } from "@cross/env";
 import type { StorageModule } from "@jollytoad/store-common/types";
 
+/**
+ * Import the storage module declared in the `STORAGE_MODULE` environment variable.
+ */
 export function fromEnv(): Promise<StorageModule> {
   const moduleSpecifier = getEnv("STORAGE_MODULE");
   if (moduleSpecifier) {

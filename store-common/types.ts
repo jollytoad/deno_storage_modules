@@ -1,3 +1,11 @@
+/**
+ * A key for an item in a store.
+ *
+ * An array of string, number or boolean.
+ * This may be translated to a format compatible with the underlying storage mechanism,
+ * often a single string delimited by slashes `/`, and where numbers and booleans are
+ * converted directly to string format.
+ */
 export type StorageKey = readonly (string | number | boolean)[];
 
 /**
@@ -46,6 +54,7 @@ export interface StorageModule<T = unknown> {
 
   /**
    * Close all associated resources.
+   * This isn't generally required in most situations, it's main use is within test cases.
    */
   close(): Promise<void>;
 
@@ -60,7 +69,7 @@ export interface StorageModule<T = unknown> {
  */
 export interface DelegatedStore {
   /**
-   * Set the store to which to delegate all function calls
+   * Set the storage module to which all function calls are delegated
    *
    * @param storageModule may be the store, promise of the store, or undefined to remove any delegate store
    */

@@ -70,8 +70,6 @@ await setItem(["store", "hello"], "world");
 Set the `STORAGE_MODULE` environment variable to the URL of the preferred
 storage module.
 
-_(TODO: Test whether `jsr:` specifiers work for the env var)_
-
 ```sh
 STORAGE_MODULE=jsr:@jollytoad/store-deno-fs deno run --allow-env --allow-net ...
 ```
@@ -100,12 +98,44 @@ best to assume the first level key to be a grouping level, eg. a database name.
 
 Any JSON serializable value can be stored.
 
-See the [types](./store-common/types.ts) for a description of the module
-interface.
+Here is a quick overview of the main functions, they deliberately follow a
+naming scheme similar to the standard
+[Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API):
+
+- `setItem(key, value)` - set the value for the exact key in the store
+- `hasItem(key)` - whether a value at the exact key has been set
+- `getItem(key)` - get the value at the exact key
+- `listItems(prefix, reverse)` - iterates over the items that match the key
+  prefix
+- `removeItem(key)` - delete the value for the exact key (ie. not any sub-items)
+- `clearItems(prefix)` - deletes all items that match the key prefix (ie. an
+  item and sub-items recursively)
+
+See the [types](https://jsr.io/@jollytoad/store-common/doc/types/~) for a
+description of all the functions in the module interface.
+
+**Example**
+
+```ts
+import * as store from "jsr:@jollytoad/store-deno-fs";
+import { assertEquals } from "jsr:@std/assert";
+
+await store.setItem(["foo", "hello"], "world");
+
+assertEquals(await store.hasItem(["foo", "hello"]), true);
+assertEquals(await store.getItem(["foo", "hello"]), "world");
+
+await store.clearItems(["foo"]);
+assertEquals(await store.hasItem(["foo", "hello"]), false);
+```
+
+You can swap the imported module for any of the alternative implementations,
+`"jsr:@jollytoad/store-deno-kv"`, or `"jsr:@jollytoad/store-web-storage"` for
+example.
 
 ## Modules
 
-### [web-storage](https://jsr.io/@jollytoad/store-web-storage)
+### [store-web-storage](https://jsr.io/@jollytoad/store-web-storage)
 
 This uses `localStorage` of the standard
 [Web Storage](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API)
@@ -116,7 +146,7 @@ with the `localStorage` API.
 
 Import mapping: `"$store": "jsr:@jollytoad/store-web-storage"`
 
-### [deno-fs](https://jsr.io/@jollytoad/store-deno-fs)
+### [store-deno-fs](https://jsr.io/@jollytoad/store-deno-fs)
 
 This stores values in individual files under a directory hierarchy via
 [Deno fs](https://deno.land/api?s=Deno.readTextFile) calls. By default this is
@@ -130,13 +160,13 @@ eg: `["one", "two", "three"]` -> `.store/one/two/three.json`
 
 Import mapping: `"$store": "jsr:@jollytoad/store-deno-fs"`
 
-### [deno-kv](https://jsr.io/@jollytoad/store-deno-kv)
+### [store-deno-kv](https://jsr.io/@jollytoad/store-deno-kv)
 
-Uses the [Deno KV](https://deno.land/manual/runtime/kv) API for storage.
+Uses the [Deno KV](https://docs.deno.com/deploy/kv/manual) API for storage.
 
 Import mapping: `"$store": "jsr:@jollytoad/store-deno-kv"`
 
-### [deno-kv-fs](https://jsr.io/@jollytoad/store-deno-kv-fs)
+### [store-deno-kv-fs](https://jsr.io/@jollytoad/store-deno-kv-fs)
 
 Combination of a readonly `deno-fs` and writeable `deno-kv`, allowing fallback
 or immutable storage in the filesystem, and mutable storage via the KV store.
@@ -147,7 +177,7 @@ overrides filesystem values.
 
 Import mapping: `"$store": "jsr:@jollytoad/store-deno-kv-fs"`
 
-### [no-op](https://jsr.io/@jollytoad/store-no-op)
+### [store-no-op](https://jsr.io/@jollytoad/store-no-op)
 
 For the odd occasion when you want to disable storage entirely but not break
 your app. This implementation does nothing.
@@ -155,12 +185,14 @@ your app. This implementation does nothing.
 ### Bring your own
 
 If these don't fulfil your needs then you can implement your own storage module
-based on the [interface](./store-common/types.ts), and switch to it.
+based on the
+[StorageModule interface](https://jsr.io/@jollytoad/store-common/doc/types/~/StorageModule),
+and switch to it.
 
 See the existing implementations for inspiration...
 
-- [web-storage](./store-web-storage/mod.ts)
-- [deno-fs](./store-deno-fs/mod.ts)
-- [deno-kv](./store-deno-kv/mod.ts)
-- [deno-kv-fs](./store-deno-kv-fs/mod.ts)
-- [no-op](./store-no-op/mod.ts)
+- [web-storage](https://github.com/jollytoad/deno_storage_modules/blob/main/store-web-storage/mod.ts)
+- [deno-fs](https://github.com/jollytoad/deno_storage_modules/blob/main/store-deno-fs/mod.ts)
+- [deno-kv](https://github.com/jollytoad/deno_storage_modules/blob/main/store-deno-kv/mod.ts)
+- [deno-kv-fs](https://github.com/jollytoad/deno_storage_modules/blob/main/store-deno-kv-fs/mod.ts)
+- [no-op](https://github.com/jollytoad/deno_storage_modules/blob/main/store-no-op/mod.ts)

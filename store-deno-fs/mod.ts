@@ -22,10 +22,16 @@ export type { StorageKey, StorageModule };
   url,
 }) satisfies StorageModule;
 
+/**
+ * Returns the `import.meta.url` of the module.
+ */
 export function url(): Promise<string> {
   return Promise.resolve(import.meta.url);
 }
 
+/**
+ * Check for filesystem write permission at directory for the given key.
+ */
 export async function isWritable(key: StorageKey = []): Promise<boolean> {
   if (Deno.env.get("DENO_DEPLOYMENT_ID")) {
     return false;
@@ -36,10 +42,16 @@ export async function isWritable(key: StorageKey = []): Promise<boolean> {
   })).state === "granted";
 }
 
+/**
+ * Determine whether a value is set for the given key.
+ */
 export function hasItem(key: StorageKey): Promise<boolean> {
   return exists(filepath(key), { isFile: true });
 }
 
+/**
+ * Get a value for the given key.
+ */
 export async function getItem<T>(key: StorageKey): Promise<T | undefined> {
   try {
     return JSON.parse(await Deno.readTextFile(filepath(key)));
@@ -52,12 +64,18 @@ export async function getItem<T>(key: StorageKey): Promise<T | undefined> {
   }
 }
 
+/**
+ * Set a value for the given key.
+ */
 export async function setItem<T>(key: StorageKey, value: T): Promise<void> {
   const path = filepath(key);
   await ensureDir(dirname(path));
   await Deno.writeTextFile(path, JSON.stringify(value));
 }
 
+/**
+ * Remove the value with the given key.
+ */
 export async function removeItem(key: StorageKey): Promise<void> {
   let path = filepath(key);
   if (await exists(path, { isFile: true })) {
@@ -76,7 +94,10 @@ export async function removeItem(key: StorageKey): Promise<void> {
   }
 }
 
-// TODO: Support reverse ordering
+/**
+ * List all items beneath the given key prefix.
+ * At present ordering is not guaranteed and reverse support is optional.
+ */
 export async function* listItems<T>(
   keyPrefix: StorageKey = [],
   _reverse = false,
@@ -105,6 +126,9 @@ export async function* listItems<T>(
   }
 }
 
+/**
+ * Delete item and sub items recursively and clean up.
+ */
 export async function clearItems(keyPrefix: StorageKey): Promise<void> {
   await removeItem(keyPrefix);
   try {
@@ -118,6 +142,10 @@ export async function clearItems(keyPrefix: StorageKey): Promise<void> {
   }
 }
 
+/**
+ * Close all associated resources.
+ * This isn't generally required in most situations, it's main use is within test cases.
+ */
 export function close(): Promise<void> {
   return Promise.resolve();
 }

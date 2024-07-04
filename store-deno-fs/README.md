@@ -15,3 +15,18 @@ JSON file.
 eg: `["one", "two", "three"]` -> `.store/one/two/three.json`
 
 Import mapping: `"$store": "jsr:@jollytoad/store-deno-fs"`
+
+**Example**
+
+```ts
+import * as store from "jsr:@jollytoad/store-deno-fs";
+import { assertEquals } from "jsr:@std/assert";
+
+await store.setItem(["foo", "hello"], "world");
+
+assertEquals(await store.hasItem(["foo", "hello"]), true);
+assertEquals(await store.getItem(["foo", "hello"]), "world");
+
+await store.clearItems(["foo"]);
+assertEquals(await store.hasItem(["foo", "hello"]), false);
+```

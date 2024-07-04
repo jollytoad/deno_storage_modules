@@ -18,28 +18,47 @@ const consistency: Deno.KvConsistencyLevel = "eventual";
   getDenoKv,
 }) satisfies StorageModule & ExposeDenoKv;
 
+/**
+ * Returns the `import.meta.url` of the module.
+ */
 export function url(): Promise<string> {
   return Promise.resolve(import.meta.url);
 }
+/**
+ * Check whether the storage is writable in general, or at or below a particular key.
+ * There still may be some sub-keys that differ.
+ */
 
 export function isWritable(_key?: StorageKey): Promise<boolean> {
   return Promise.resolve(true);
 }
+/**
+ * Determine whether a value is set for the given key.
+ */
 
 export async function hasItem<T>(key: StorageKey): Promise<boolean> {
   return (await (await getDenoKv(key)).get<T>(key, { consistency }))
     .versionstamp !== null;
 }
 
+/**
+ * Get a value for the given key.
+ */
 export async function getItem<T>(key: StorageKey): Promise<T | undefined> {
   return (await (await getDenoKv(key)).get<T>(key, { consistency })).value ??
     undefined;
 }
 
+/**
+ * Set a value for the given key.
+ */
 export async function setItem<T>(key: StorageKey, value: T): Promise<void> {
   await (await getDenoKv(key)).set(key, value);
 }
 
+/**
+ * Remove the value with the given key.
+ */
 export async function removeItem(key: StorageKey): Promise<void> {
   if (key.length) {
     await (await getDenoKv(key)).delete(key);
@@ -47,6 +66,7 @@ export async function removeItem(key: StorageKey): Promise<void> {
 }
 
 /**
+ * List all items beneath the given key prefix.
  * Supports ordering and reverse based on the KV natural key ordering.
  */
 export async function* listItems<T>(
@@ -63,6 +83,9 @@ export async function* listItems<T>(
   }
 }
 
+/**
+ * Delete item and sub items recursively and clean up.
+ */
 export async function clearItems(prefix: StorageKey): Promise<void> {
   const kv = await getDenoKv(prefix);
   let op = kv.atomic();
@@ -78,6 +101,10 @@ export async function clearItems(prefix: StorageKey): Promise<void> {
   await op.commit();
 }
 
+/**
+ * Close all associated resources.
+ * This isn't generally required in most situations, it's main use is within test cases.
+ */
 export async function close(): Promise<void> {
   const kvs = [...kvCache.values()];
   kvCache.clear();

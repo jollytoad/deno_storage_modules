@@ -17,18 +17,31 @@ export type { StorageKey, StorageModule };
 
 const SEP = "/";
 
+/**
+ * Returns the `import.meta.url` of the module.
+ */
 export function url(): Promise<string> {
   return Promise.resolve(import.meta.url);
 }
 
+/**
+ * Check whether the storage is writable in general, or at or below a particular key.
+ * There still may be some sub-keys that differ.
+ */
 export function isWritable(_key?: StorageKey): Promise<boolean> {
   return Promise.resolve(true);
 }
 
+/**
+ * Determine whether a value is set for the given key.
+ */
 export function hasItem(key: StorageKey): Promise<boolean> {
   return Promise.resolve(localStorage.getItem(storageKey(key)) !== null);
 }
 
+/**
+ * Get a value for the given key.
+ */
 export function getItem<T>(key: StorageKey): Promise<T | undefined> {
   const json = localStorage.getItem(storageKey(key));
   if (typeof json === "string") {
@@ -37,16 +50,26 @@ export function getItem<T>(key: StorageKey): Promise<T | undefined> {
   return Promise.resolve(undefined);
 }
 
+/**
+ * Set a value for the given key.
+ */
 export function setItem<T>(key: StorageKey, value: T): Promise<void> {
   localStorage.setItem(storageKey(key), JSON.stringify(value));
   return Promise.resolve();
 }
 
+/**
+ * Remove the value with the given key.
+ */
 export function removeItem(key: StorageKey): Promise<void> {
   localStorage.removeItem(storageKey(key));
   return Promise.resolve();
 }
 
+/**
+ * List all items beneath the given key prefix.
+ * At present, guaranteed ordering and reverse support is optional.
+ */
 export async function* listItems<T>(
   keyPrefix: StorageKey = [],
   reverse = false,
@@ -72,6 +95,9 @@ export async function* listItems<T>(
   }
 }
 
+/**
+ * Delete item and sub items recursively and clean up.
+ */
 export function clearItems(keyPrefix: StorageKey): Promise<void> {
   const queued: string[] = [storageKey(keyPrefix)];
 
@@ -88,6 +114,10 @@ export function clearItems(keyPrefix: StorageKey): Promise<void> {
   return Promise.resolve();
 }
 
+/**
+ * Close all associated resources.
+ * This isn't generally required in most situations, it's main use is within test cases.
+ */
 export function close(): Promise<void> {
   return Promise.resolve();
 }

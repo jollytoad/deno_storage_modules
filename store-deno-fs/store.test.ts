@@ -33,7 +33,7 @@ Deno.test("store-deno-fs", async (t) => {
   }
 });
 
-export async function testDirectoryPurge(
+async function testDirectoryPurge(
   t: Deno.TestContext,
   { setItem, removeItem }: StorageModule,
 ) {
