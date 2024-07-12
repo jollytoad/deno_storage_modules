@@ -1,4 +1,3 @@
-import { getEnv } from "@cross/env";
 import type { StorageModule } from "@jollytoad/store-common/types";
 
 /**
@@ -15,4 +14,13 @@ export function fromEnv(): Promise<StorageModule> {
       ),
     );
   }
+}
+
+type NodeGlobal = typeof globalThis & {
+  process: { env: Record<string, string> };
+};
+
+function getEnv(name: string): string | undefined {
+  return globalThis.Deno?.env?.get(name) ??
+    (globalThis as NodeGlobal).process?.env?.[name];
 }

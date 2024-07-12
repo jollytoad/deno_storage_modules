@@ -2,52 +2,47 @@
   "version": "3",
   "packages": {
     "specifiers": {
-      "jsr:@cross/deepmerge@^1.0.0": "jsr:@cross/deepmerge@1.0.0",
-      "jsr:@cross/env@^1.0.2": "jsr:@cross/env@1.0.2",
-      "jsr:@cross/runtime@^1.0.0": "jsr:@cross/runtime@1.0.0",
-      "jsr:@std/assert@^1.0.0-rc.3": "jsr:@std/assert@1.0.0-rc.3",
-      "jsr:@std/fs@^1.0.0-rc.3": "jsr:@std/fs@1.0.0-rc.3",
+      "jsr:@std/assert@^1.0.0": "jsr:@std/assert@1.0.0",
+      "jsr:@std/fs@^1.0.0-rc.4": "jsr:@std/fs@1.0.0-rc.4",
       "jsr:@std/internal@^1.0.1": "jsr:@std/internal@1.0.1",
-      "jsr:@std/path@1.0.0-rc.3": "jsr:@std/path@1.0.0-rc.3",
-      "jsr:@std/path@^1.0.0-rc.3": "jsr:@std/path@1.0.0-rc.3",
-      "npm:@types/node": "npm:@types/node@18.16.19"
+      "jsr:@std/path@1.0.0-rc.4": "jsr:@std/path@1.0.0-rc.4",
+      "jsr:@std/path@^1.0.0-rc.4": "jsr:@std/path@1.0.0-rc.4",
+      "npm:@types/node": "npm:@types/node@18.16.19",
+      "npm:@types/node@^20.14.10": "npm:@types/node@20.14.10"
     },
     "jsr": {
-      "@cross/deepmerge@1.0.0": {
-        "integrity": "1e1318a74e31ba1959b9aa0acae8bd417b806f74ffd25ac07c90e12f83ad6b1d"
-      },
-      "@cross/env@1.0.2": {
-        "integrity": "28501ad1043c218a5b00fe5db27ec62c01ab16371bbe1b9d738496f0a7c5eeb8",
-        "dependencies": [
-          "jsr:@cross/deepmerge@^1.0.0",
-          "jsr:@cross/runtime@^1.0.0"
-        ]
-      },
-      "@cross/runtime@1.0.0": {
-        "integrity": "dddecdf99182df13d50279d1e473f715e83d41961c5c22edd7bb0c4c3cf8a76a"
-      },
-      "@std/assert@1.0.0-rc.3": {
-        "integrity": "27fb4b1da846ea3f7f0504f9b2acf7c83a763387a88c497e94a62ca168c9a24e",
+      "@std/assert@1.0.0": {
+        "integrity": "0e4f6d873f7f35e2a1e6194ceee39686c996b9e5d134948e644d35d4c4df2008",
         "dependencies": [
           "jsr:@std/internal@^1.0.1"
         ]
       },
-      "@std/fs@1.0.0-rc.3": {
-        "integrity": "50a0a4366e7e2bd444ed0831757e3d9dd39b1d24612764bbb9ac7725169903f4",
+      "@std/fs@1.0.0-rc.4": {
+        "integrity": "7f97a43fcb807dff8580569be938274b42217a1cf2b56c7f6b0436985ab79adc",
         "dependencies": [
-          "jsr:@std/path@1.0.0-rc.3"
+          "jsr:@std/path@1.0.0-rc.4"
         ]
       },
       "@std/internal@1.0.1": {
         "integrity": "6f8c7544d06a11dd256c8d6ba54b11ed870aac6c5aeafff499892662c57673e6"
       },
-      "@std/path@1.0.0-rc.3": {
-        "integrity": "672b8f88b3b58b6e932052ae412f40fc063940fcdb228d12f80353bc6aff38c1"
+      "@std/path@1.0.0-rc.4": {
+        "integrity": "2be56452bb0b42ebe4798c5db0ee74efec71b3a7d14b3e406041b538cf9316c9"
       }
     },
     "npm": {
       "@types/node@18.16.19": {
         "integrity": "sha512-IXl7o+R9iti9eBW4Wg2hx1xQDig183jj7YLn8F7udNceyfkbn1ZxmzZXuak20gR40D7pIkIY1kYGx5VIGbaHKA==",
+        "dependencies": {}
+      },
+      "@types/node@20.14.10": {
+        "integrity": "sha512-MdiXf+nDuMvY0gJKxyfZ7/6UFsETO7mGKF54MVD/ekJS6HdFtpZFBgrh6Pseu64XTb2MLyFPlbW6hj8HYRQNOQ==",
+        "dependencies": {
+          "undici-types": "undici-types@5.26.5"
+        }
+      },
+      "undici-types@5.26.5": {
+        "integrity": "sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==",
         "dependencies": {}
       }
     }
@@ -55,26 +50,17 @@
   "remote": {},
   "workspace": {
     "dependencies": [
-      "jsr:@cross/env@^1.0.2",
-      "jsr:@jollytoad/store-common@^0.3.0",
-      "jsr:@jollytoad/store-deno-fs@^0.3.0",
-      "jsr:@jollytoad/store-deno-kv-fs@^0.3.0",
-      "jsr:@jollytoad/store-deno-kv@^0.3.0",
-      "jsr:@jollytoad/store-no-op@^0.3.0",
-      "jsr:@jollytoad/store-web-storage@^0.3.0",
-      "jsr:@jollytoad/store@^0.3.0",
-      "jsr:@std/assert@^1.0.0-rc.3",
-      "jsr:@std/fs@^1.0.0-rc.3",
-      "jsr:@std/path@^1.0.0-rc.3"
-    ],
-    "members": {
-      "@jollytoad/store": {},
-      "@jollytoad/store-common": {},
-      "@jollytoad/store-deno-fs": {},
-      "@jollytoad/store-deno-kv": {},
-      "@jollytoad/store-deno-kv-fs": {},
-      "@jollytoad/store-no-op": {},
-      "@jollytoad/store-web-storage": {}
-    }
+      "jsr:@jollytoad/store-common@^0.4.0",
+      "jsr:@jollytoad/store-deno-fs@^0.4.0",
+      "jsr:@jollytoad/store-deno-kv-fs@^0.4.0",
+      "jsr:@jollytoad/store-deno-kv@^0.4.0",
+      "jsr:@jollytoad/store-no-op@^0.4.0",
+      "jsr:@jollytoad/store-web-storage@^0.4.0",
+      "jsr:@jollytoad/store@^0.4.0",
+      "jsr:@std/assert@^1.0.0",
+      "jsr:@std/fs@^1.0.0-rc.4",
+      "jsr:@std/path@^1.0.0-rc.4",
+      "npm:@types/node@^20.14.10"
+    ]
   }
 }
