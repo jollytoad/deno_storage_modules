@@ -1,5 +1,3 @@
-/// <reference types="@types/node/fs/promises" />
-
 import type { StorageKey, StorageModule } from "@jollytoad/store-common/types";
 import { fromStrKey, toStrKey } from "@jollytoad/store-common/key-utils";
 
@@ -81,7 +79,7 @@ export async function getItem<T>(key: StorageKey): Promise<T | undefined> {
   try {
     return JSON.parse(await fs.readFile(filepath(key), { encoding: "utf-8" }));
   } catch (e) {
-    if (e.code === "ENOENT") {
+    if (isNotFound(e)) {
       return undefined;
     } else {
       throw e;
@@ -117,7 +115,9 @@ export async function removeItem(key: StorageKey): Promise<void> {
       path = resolve(path, "..");
     }
   } catch (e) {
-    if (e.code !== "ENOENT") {
+    if (isNotFound(e)) {
+      return;
+    } else {
       throw e;
     }
   }
@@ -145,7 +145,7 @@ export async function* listItems<T>(
       }
     }
   } catch (e) {
-    if (e.code === "ENOENT") {
+    if (isNotFound(e)) {
       return;
     } else {
       throw e;
@@ -175,7 +175,7 @@ export async function clearItems(keyPrefix: StorageKey): Promise<void> {
   try {
     await fs.rmdir(dirpath(keyPrefix), { recursive: true });
   } catch (e) {
-    if (e.code === "ENOENT") {
+    if (isNotFound(e)) {
       return;
     } else {
       throw e;
@@ -198,4 +198,9 @@ function filepath(key: StorageKey) {
 function dirpath(key: StorageKey = []) {
   const root = process.env.STORE_FS_ROOT ?? ".store";
   return resolve(root, ...toStrKey(key));
+}
+
+// deno-lint-ignore no-explicit-any
+function isNotFound(e: any) {
+  return e && "code" in e && e.code === "ENOENT";
 }

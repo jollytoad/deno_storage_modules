@@ -1,6 +1,6 @@
 {
   "name": "@jollytoad/store-common",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "exports": {
     "./key-utils": "./key-utils.ts",
     "./test-storage-module": "./test-storage-module.ts",

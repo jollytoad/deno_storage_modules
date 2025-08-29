@@ -4,10 +4,12 @@ import {
   testClearItems,
   testGetItem,
   testHasItem,
+  testIsWriteable,
   testListItems,
   testRemoveItem,
   testSetItem,
   testUrl,
+  testUrlForPrefix,
 } from "../store-common/test-storage-module.ts";
 import * as store from "./mod.ts";
 
@@ -63,4 +65,30 @@ Deno.test("store - no store selected throws an error", async () => {
     Error,
     "A StorageModule was not selected",
   );
+});
+
+Deno.test("store - with prefix", async (t) => {
+  try {
+    Deno.env.delete("STORAGE_MODULE");
+
+    store.setStore(import("../store-deno-kv/mod.ts"), "store");
+    store.setStore(import("../store-no-op/mod.ts"));
+
+    await open(t, store);
+
+    await testUrl(t, store, "store-no-op");
+    await testUrlForPrefix(t, store, "store-deno-kv", "store");
+
+    await testIsWriteable(t, store, false);
+    await testIsWriteable(t, store, true, "store");
+
+    await testSetItem(t, store);
+    await testHasItem(t, store);
+    await testGetItem(t, store);
+    await testListItems(t, store);
+    await testRemoveItem(t, store);
+    await testClearItems(t, store);
+  } finally {
+    await store.close();
+  }
 });

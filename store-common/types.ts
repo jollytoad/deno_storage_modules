@@ -65,21 +65,33 @@ export interface StorageModule<T = unknown> {
 }
 
 /**
- * Additional functions for a store that delegates to another store
+ * Additional functions for a store that delegates to one or more other stores
  */
 export interface DelegatedStore {
   /**
    * Set the storage module to which all function calls are delegated
    *
    * @param storageModule may be the store, promise of the store, or undefined to remove any delegate store
+   * @param prefix delegate only for StorageKeys starting with this prefix
    */
-  setStore(storageModule?: StorageModule | Promise<StorageModule>): void;
+  setStore(
+    storageModule?: StorageModule | Promise<StorageModule>,
+    prefix?: string,
+  ): void;
 
   /**
    * Get the delegate store previously set via `setStore` or obtained via another mechanism (eg. env vars)
    *
+   * @param key get the store specific to this key or prefix
    * @returns the promise of the store to which all operations are delegated
    * @throws if no store has been set or can be loaded
    */
-  getStore(): Promise<StorageModule>;
+  getStore(key?: StorageKey | string): Promise<StorageModule>;
+
+  /**
+   * Returns the `import.meta.url` of the module.
+   *
+   * @param key get the store specific to this key or prefix
+   */
+  url(key?: StorageKey | string): Promise<string>;
 }

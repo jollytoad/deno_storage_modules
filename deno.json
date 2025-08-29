@@ -4,12 +4,9 @@
   ],
   "tasks": {
     "test": "deno test --allow-env --allow-read --allow-write --allow-net --allow-sys",
-    "reload": "deno cache --reload **/*.ts jsr:@check/deps",
-    "check": "deno check **/*.ts",
     "lint": "deno lint && deno doc --lint **/*.ts",
-    "ok": "deno fmt && deno task lint && deno task check && deno task test && deno publish --dry-run --allow-dirty",
-    "outdated": "deno run --allow-read=. --allow-net=jsr.io,registry.npmjs.org jsr:@check/deps",
-    "lock": "rm -f deno.lock && deno task check"
+    "ok": "deno fmt && deno task lint && deno check && deno task test && deno publish --dry-run --allow-dirty",
+    "lock": "rm -f deno.lock && deno install --reload && deno check"
   },
   "compilerOptions": {
     "noUncheckedIndexedAccess": true,
@@ -26,16 +23,15 @@
     "./store"
   ],
   "imports": {
-    "@jollytoad/store": "jsr:@jollytoad/store@^0.4.0",
-    "@jollytoad/store-common": "jsr:@jollytoad/store-common@^0.4.0",
-    "@jollytoad/store-deno-fs": "jsr:@jollytoad/store-deno-fs@^0.4.0",
-    "@jollytoad/store-deno-kv": "jsr:@jollytoad/store-deno-kv@^0.4.0",
-    "@jollytoad/store-deno-kv-fs": "jsr:@jollytoad/store-deno-kv-fs@^0.4.0",
-    "@jollytoad/store-no-op": "jsr:@jollytoad/store-no-op@^0.4.0",
-    "@jollytoad/store-web-storage": "jsr:@jollytoad/store-web-storage@^0.4.0",
-    "@std/assert": "jsr:@std/assert@^1.0.0",
-    "@std/fs": "jsr:@std/fs@^1.0.0-rc.4",
-    "@std/path": "jsr:@std/path@^1.0.0-rc.4",
-    "@types/node": "npm:@types/node@^20.14.10"
+    "@jollytoad/store": "jsr:@jollytoad/store@^0.5.0",
+    "@jollytoad/store-common": "jsr:@jollytoad/store-common@^0.5.0",
+    "@jollytoad/store-deno-fs": "jsr:@jollytoad/store-deno-fs@^0.5.0",
+    "@jollytoad/store-deno-kv": "jsr:@jollytoad/store-deno-kv@^0.5.0",
+    "@jollytoad/store-deno-kv-fs": "jsr:@jollytoad/store-deno-kv-fs@^0.5.0",
+    "@jollytoad/store-no-op": "jsr:@jollytoad/store-no-op@^0.5.0",
+    "@jollytoad/store-web-storage": "jsr:@jollytoad/store-web-storage@^0.5.0",
+    "@std/assert": "jsr:@std/assert@^1.0.14",
+    "@std/fs": "jsr:@std/fs@^1.0.19",
+    "@std/path": "jsr:@std/path@^1.1.2"
   }
 }

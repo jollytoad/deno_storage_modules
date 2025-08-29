@@ -20,17 +20,28 @@ export type { DelegatedStore, StorageKey, StorageModule };
   getStore,
 }) satisfies StorageModule & DelegatedStore;
 
-let store: Promise<StorageModule> | undefined;
+let defaultStore: Promise<StorageModule> | undefined;
+let stores: Map<string, Promise<StorageModule>> | undefined;
 
 /**
  * Set the storage module to which all function calls are delegated
  *
  * @param storageModule may be the store, promise of the store, or undefined to remove any delegate store
+ * @param prefix the given storage module will only apply to keys with this prefix, if this is not supplied
+ *   then the given storage module is set as the default/fallback store
  */
 export function setStore(
   storageModule?: StorageModule | Promise<StorageModule>,
+  prefix?: string,
 ) {
-  store = storageModule ? Promise.resolve(storageModule) : undefined;
+  if (prefix === undefined) {
+    defaultStore = storageModule ? Promise.resolve(storageModule) : undefined;
+  } else if (storageModule) {
+    stores ??= new Map();
+    stores.set(prefix, Promise.resolve(storageModule));
+  } else {
+    stores?.delete(prefix);
+  }
 }
 
 /**
@@ -41,18 +52,29 @@ export function setStore(
  * @returns the promise of the store to which all operations are delegated
  * @throws if no store or env var has been set, or if dynamic import fails
  */
-export async function getStore(): Promise<StorageModule> {
-  if (!store) {
-    store = (await import("./_from_env.ts")).fromEnv();
+export async function getStore(
+  key?: StorageKey | string,
+): Promise<StorageModule> {
+  if (key && key.length) {
+    const prefix = typeof key === "string" ? key : String(key[0]);
+    if (prefix) {
+      const store = stores?.get(prefix);
+      if (store) {
+        return store;
+      }
+    }
   }
-  return await store;
+  if (!defaultStore) {
+    defaultStore = (await import("./_from_env.ts")).fromEnv();
+  }
+  return await defaultStore;
 }
 
 /**
  * Returns the `url()` of the delegated storage module.
  */
-export async function url(): Promise<string> {
-  return (await getStore()).url();
+export async function url(key?: StorageKey | string): Promise<string> {
+  return (await getStore(key)).url();
 }
 
 /**
@@ -60,35 +82,35 @@ export async function url(): Promise<string> {
  * There still may be some sub-keys that differ.
  */
 export async function isWritable(key: StorageKey = []): Promise<boolean> {
-  return (await getStore()).isWritable(key);
+  return (await getStore(key)).isWritable(key);
 }
 
 /**
  * Determine whether a value is set for the given key in the delegated storage.
  */
 export async function hasItem(key: StorageKey): Promise<boolean> {
-  return (await getStore()).hasItem(key);
+  return (await getStore(key)).hasItem(key);
 }
 
 /**
  * Get a value for the given key from the delegated storage.
  */
 export async function getItem<T>(key: StorageKey): Promise<T | undefined> {
-  return (await getStore()).getItem(key) as Promise<T | undefined>;
+  return (await getStore(key)).getItem(key) as Promise<T | undefined>;
 }
 
 /**
  * Set a value for the given key in the delegated storage.
  */
 export async function setItem<T>(key: StorageKey, value: T): Promise<void> {
-  return (await getStore()).setItem(key, value);
+  return (await getStore(key)).setItem(key, value);
 }
 
 /**
  * Remove the value with the given key from the delegated storage.
  */
 export async function removeItem(key: StorageKey): Promise<void> {
-  return (await getStore()).removeItem(key);
+  return (await getStore(key)).removeItem(key);
 }
 
 /**
@@ -100,7 +122,7 @@ export async function* listItems<T>(
   prefix: StorageKey = [],
   reverse = false,
 ): AsyncIterable<[StorageKey, T]> {
-  yield* (await getStore()).listItems(prefix, reverse) as AsyncIterable<
+  yield* (await getStore(prefix)).listItems(prefix, reverse) as AsyncIterable<
     [StorageKey, T]
   >;
 }
@@ -109,7 +131,7 @@ export async function* listItems<T>(
  * Delete item and sub items recursively from the delegated storage and clean up.
  */
 export async function clearItems(prefix: StorageKey): Promise<void> {
-  return (await getStore()).clearItems(prefix);
+  return (await getStore(prefix)).clearItems(prefix);
 }
 
 /**
@@ -117,5 +139,11 @@ export async function clearItems(prefix: StorageKey): Promise<void> {
  * This isn't generally required in most situations, it's main use is within test cases.
  */
 export async function close(): Promise<void> {
-  (await store)?.close();
+  const pending = [defaultStore, ...stores?.values() ?? []].map(async (store) =>
+    (await store)?.close()
+  );
+  defaultStore = undefined;
+  stores?.clear();
+  stores = undefined;
+  await Promise.allSettled(pending);
 }

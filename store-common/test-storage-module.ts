@@ -4,7 +4,7 @@ import {
   assertEquals,
   assertStringIncludes,
 } from "@std/assert";
-import type { StorageModule } from "./types.ts";
+import type { DelegatedStore, StorageModule } from "./types.ts";
 
 /**
  * Test the url() function of the given storage module.
@@ -22,16 +22,39 @@ export async function testUrl(
 }
 
 /**
+ * Test the url() function of the given delegated storage module with a key prefix.
+ */
+export async function testUrlForPrefix(
+  t: Deno.TestContext,
+  { url }: DelegatedStore,
+  includes: string,
+  prefix: string,
+) {
+  await t.step(
+    `url contains "${includes}" for keys prefixed with "${prefix}"`,
+    async () => {
+      const actualUrl = await url(prefix);
+      console.log("StorageModule URL:", actualUrl);
+      assertStringIncludes(actualUrl, includes);
+    },
+  );
+}
+
+/**
  * Test the isWriteable() function of the given storage module.
  */
 export async function testIsWriteable(
   t: Deno.TestContext,
   { isWritable }: StorageModule,
   expected = true,
+  prefix?: string,
 ) {
-  await t.step(`isWriteable() to be ${expected}`, async () => {
-    assertEquals(await isWritable(), expected);
-  });
+  await t.step(
+    `isWriteable(${prefix ? `["${prefix}"]` : ""}) to be ${expected}`,
+    async () => {
+      assertEquals(await isWritable(prefix ? [prefix] : undefined), expected);
+    },
+  );
 }
 
 /**

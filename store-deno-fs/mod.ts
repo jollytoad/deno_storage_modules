@@ -56,7 +56,7 @@ export async function getItem<T>(key: StorageKey): Promise<T | undefined> {
   try {
     return JSON.parse(await Deno.readTextFile(filepath(key)));
   } catch (e) {
-    if (e.code === "ENOENT") {
+    if (isNotFound(e)) {
       return undefined;
     } else {
       throw e;
@@ -118,7 +118,7 @@ export async function* listItems<T>(
       }
     }
   } catch (e) {
-    if (e.code === "ENOENT") {
+    if (isNotFound(e)) {
       return;
     } else {
       throw e;
@@ -134,7 +134,7 @@ export async function clearItems(keyPrefix: StorageKey): Promise<void> {
   try {
     await Deno.remove(dirpath(keyPrefix), { recursive: true });
   } catch (e) {
-    if (e.code === "ENOENT") {
+    if (isNotFound(e)) {
       return;
     } else {
       throw e;
@@ -157,4 +157,9 @@ function filepath(key: StorageKey) {
 function dirpath(key: StorageKey = []) {
   const root = Deno.env.get("STORE_FS_ROOT") ?? ".store";
   return resolve(root, ...toStrKey(key));
+}
+
+// deno-lint-ignore no-explicit-any
+function isNotFound(e: any) {
+  return e && "code" in e && e.code === "ENOENT";
 }
