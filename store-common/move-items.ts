@@ -1,4 +1,4 @@
-import type { StorageKey, StorageModule } from "@jollytoad/store-common/types";
+import type { StorageKey, StorageModule } from "./types.ts";
 import { copyItems } from "./copy-items.ts";
 
 /**

@@ -2,7 +2,7 @@ import type {
   MinimalStorageModule,
   StorageKey,
   StorageModule,
-} from "@jollytoad/store-common/types";
+} from "./types.ts";
 
 /**
  * Default implementation of copyItems for stores that might
