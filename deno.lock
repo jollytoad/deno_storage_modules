@@ -46,13 +46,13 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@jollytoad/store-common@0.5",
-      "jsr:@jollytoad/store-deno-fs@0.5",
-      "jsr:@jollytoad/store-deno-kv-fs@0.5",
-      "jsr:@jollytoad/store-deno-kv@0.5",
-      "jsr:@jollytoad/store-no-op@0.5",
-      "jsr:@jollytoad/store-web-storage@0.5",
-      "jsr:@jollytoad/store@0.5",
+      "jsr:@jollytoad/store-common@0.6",
+      "jsr:@jollytoad/store-deno-fs@0.6",
+      "jsr:@jollytoad/store-deno-kv-fs@0.6",
+      "jsr:@jollytoad/store-deno-kv@0.6",
+      "jsr:@jollytoad/store-no-op@0.6",
+      "jsr:@jollytoad/store-web-storage@0.6",
+      "jsr:@jollytoad/store@0.6",
       "jsr:@std/assert@^1.0.14",
       "jsr:@std/fs@^1.0.19",
       "jsr:@std/path@^1.1.2"

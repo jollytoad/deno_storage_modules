@@ -1,10 +1,12 @@
 import {
   open,
   testClearItems,
+  testCopyItems,
   testGetItem,
   testHasItem,
   testIsWriteable,
   testListItems,
+  testMoveItems,
   testOrdering,
   testRemoveItem,
   testSetItem,
@@ -23,6 +25,8 @@ Deno.test("store-deno-kv-fs", async (t) => {
     await testListItems(t, store);
     await testRemoveItem(t, store);
     await testClearItems(t, store);
+    await testCopyItems(t, store);
+    await testMoveItems(t, store);
     await testOrdering(t, store);
   } finally {
     await store.close();

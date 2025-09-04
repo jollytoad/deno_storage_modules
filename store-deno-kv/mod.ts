@@ -1,4 +1,8 @@
-import type { StorageKey, StorageModule } from "@jollytoad/store-common/types";
+import type {
+  MinimalStorageModule,
+  StorageKey,
+  StorageModule,
+} from "@jollytoad/store-common/types";
 import type { ExposeDenoKv } from "./types.ts";
 
 export type { ExposeDenoKv, StorageKey, StorageModule };
@@ -16,7 +20,7 @@ const consistency: Deno.KvConsistencyLevel = "eventual";
   close,
   url,
   getDenoKv,
-}) satisfies StorageModule & ExposeDenoKv;
+}) satisfies MinimalStorageModule & ExposeDenoKv;
 
 /**
  * Returns the `import.meta.url` of the module.

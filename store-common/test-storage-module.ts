@@ -5,6 +5,8 @@ import {
   assertStringIncludes,
 } from "@std/assert";
 import type { DelegatedStore, StorageModule } from "./types.ts";
+import { copyItems } from "./copy-items.ts";
+import { moveItems } from "./move-items.ts";
 
 /**
  * Test the url() function of the given storage module.
@@ -211,6 +213,141 @@ export async function testClearItems(
     }
 
     assertEquals(count, 0, "Expected no items to be found");
+  });
+}
+
+/**
+ * Test the copyItems() function of the given storage module.
+ */
+export async function testCopyItems(t: Deno.TestContext, store: StorageModule) {
+  const { setItem, getItem, hasItem, listItems, clearItems } = store;
+
+  await t.step("copyItems", async () => {
+    await setItem(["store", "original"], "this");
+    await setItem(["store", "original", "number"], 100);
+    await setItem(["store", "original", "deeply", "true"], true);
+    await setItem(["store", "original", "array"], ["a", "b", "c"]);
+
+    await setItem(["store", "copied", "existing"], "here");
+
+    if (store.copyItems) {
+      await store.copyItems(["store", "original"], ["store", "copied"]);
+    } else {
+      await copyItems(["store", "original"], ["store", "copied"], store);
+    }
+
+    assert(
+      await hasItem(["store", "original", "deeply", "true"]),
+      "Expected deeply nested item to exist at old key",
+    );
+
+    assert(
+      await hasItem(["store", "copied", "deeply", "true"]),
+      "Expected deeply nested item to exist at new key",
+    );
+
+    assert(
+      !await hasItem(["store", "copied", "existing"]),
+      "Expected previous existing nested item to no longer exist at new key",
+    );
+
+    const expectedValues: unknown[] = ["this", 100, true, ["a", "b", "c"]];
+
+    const originalValues = [
+      await getItem(["store", "original"]),
+      ...await gatherValues(listItems(["store", "original"])),
+    ];
+    const copiedValues = [
+      await getItem(["store", "copied"]),
+      ...await gatherValues(listItems(["store", "copied"])),
+    ];
+
+    assertArrayIncludes(
+      originalValues,
+      expectedValues,
+      "Expected all items to be found at old key",
+    );
+
+    assertArrayIncludes(
+      copiedValues,
+      expectedValues,
+      "Expected all items to be found at new key",
+    );
+  });
+
+  await t.step("copyItems (clean up)", async () => {
+    await clearItems(["store", "original"]);
+    await clearItems(["store", "copied"]);
+  });
+}
+
+/**
+ * Test the moveItems() function of the given storage module.
+ */
+export async function testMoveItems(t: Deno.TestContext, store: StorageModule) {
+  const { setItem, getItem, hasItem, listItems, clearItems } = store;
+
+  await t.step("moveItems", async () => {
+    await setItem(["store", "original"], "this");
+    await setItem(["store", "original", "number"], 100);
+    await setItem(["store", "original", "deeply", "true"], true);
+    await setItem(["store", "original", "array"], ["a", "b", "c"]);
+
+    await setItem(["store", "moved", "existing"], "here");
+
+    if (store.moveItems) {
+      await store.moveItems(["store", "original"], ["store", "moved"]);
+    } else {
+      await moveItems(["store", "original"], ["store", "moved"], store);
+    }
+
+    assert(
+      !await hasItem(["store", "original", "deeply", "true"]),
+      "Expected deeply nested item to no longer exist at old key",
+    );
+
+    assert(
+      await hasItem(["store", "moved", "deeply", "true"]),
+      "Expected deeply nested item to exist at new key",
+    );
+
+    assert(
+      !await hasItem(["store", "copied", "existing"]),
+      "Expected previous existing nested item to no longer exist at new key",
+    );
+
+    assert(
+      !await hasItem(["store", "original"]),
+      "Expected root item to no longer exist at old key",
+    );
+
+    const originalSubValues = await gatherValues(
+      listItems(["store", "original"]),
+    );
+
+    assertEquals(
+      originalSubValues.length,
+      0,
+      "Expected no sub items to be found at old key",
+    );
+
+    const expectedValues = ["this", 100, true, ["a", "b", "c"]];
+
+    const movedValues = [
+      await getItem(["store", "moved"]),
+      ...await gatherValues(listItems(["store", "moved"])),
+    ];
+
+    assertArrayIncludes(
+      movedValues,
+      expectedValues,
+      "Expected all items to be found at new key",
+    );
+  });
+
+  await t.step("moveItems (clean up)", async () => {
+    await clearItems(["store", "original"]);
+    await clearItems(["store", "moved"]);
   });
 }
 

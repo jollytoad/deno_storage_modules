@@ -3,9 +3,16 @@ import { relative } from "@std/path/relative";
 import { resolve } from "@std/path/resolve";
 import { SEPARATOR_PATTERN } from "@std/path/constants";
 import { ensureDir } from "@std/fs/ensure-dir";
+import { emptyDir } from "@std/fs/empty-dir";
 import { exists } from "@std/fs/exists";
 import { walk } from "@std/fs/walk";
-import type { StorageKey, StorageModule } from "@jollytoad/store-common/types";
+import { copy } from "@std/fs/copy";
+import { move } from "@std/fs/move";
+import type {
+  CompleteStorageModule,
+  StorageKey,
+  StorageModule,
+} from "@jollytoad/store-common/types";
 import { fromStrKey, toStrKey } from "@jollytoad/store-common/key-utils";
 
 export type { StorageKey, StorageModule };
@@ -18,9 +25,11 @@ export type { StorageKey, StorageModule };
   removeItem,
   listItems,
   clearItems,
+  copyItems,
+  moveItems,
   close,
   url,
-}) satisfies StorageModule;
+}) satisfies CompleteStorageModule;
 
 /**
  * Returns the `import.meta.url` of the module.
@@ -112,7 +121,7 @@ export async function* listItems<T>(
           SEPARATOR_PATTERN,
         );
         const item = await getItem<T>(key);
-        if (item) {
+        if (item !== undefined) {
           yield [fromStrKey(key), item];
         }
       }
@@ -140,6 +149,29 @@ export async function clearItems(keyPrefix: StorageKey): Promise<void> {
       throw e;
     }
   }
+}
+
+/**
+ * Copy an item and all sub items to a new key.
+ */
+export async function copyItems<T>(
+  fromPrefix: StorageKey,
+  toPrefix: StorageKey,
+): Promise<void> {
+  await copy(filepath(fromPrefix), filepath(toPrefix), { overwrite: true });
+  await emptyDir(dirpath(toPrefix));
+  await copy(dirpath(fromPrefix), dirpath(toPrefix), { overwrite: true });
+}
+
+/**
+ * Move an item and all sub items to a new key.
+ */
+export async function moveItems<T>(
+  fromPrefix: StorageKey,
+  toPrefix: StorageKey,
+): Promise<void> {
+  await move(filepath(fromPrefix), filepath(toPrefix), { overwrite: true });
+  await move(dirpath(fromPrefix), dirpath(toPrefix), { overwrite: true });
 }
 
 /**

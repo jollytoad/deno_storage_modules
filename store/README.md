@@ -111,6 +111,17 @@ naming scheme similar to the standard
 - `clearItems(prefix)` - deletes all items that match the key prefix (ie. an
   item and sub-items recursively)
 
+The following are extended functions, that a storage module may optionally
+implement:
+
+- `copyItems(fromKey, toKey)` - copy an item and all sub-items to the new key
+  clearing any items and sub-items that already existed at the target key
+- `moveItems(fromKey, toKey)` - move an item and all sub-items to the new key
+  clearing any items and sub-items that already existed at the target key
+
+These optional functions are always available from `@jollytoad/store`, using a
+default implementation if the delegate storage module doesn't provide it.
+
 See the [types](https://jsr.io/@jollytoad/store-common/doc/types/~) for a
 description of all the functions in the module interface.
 

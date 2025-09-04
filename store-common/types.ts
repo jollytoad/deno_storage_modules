@@ -9,9 +9,23 @@
 export type StorageKey = readonly (string | number | boolean)[];
 
 /**
- * Describes the interface provided by each storage module
+ * Describes the common interface provided by each storage module
  */
-export interface StorageModule<T = unknown> {
+export type StorageModule<T = unknown> =
+  & MinimalStorageModule<T>
+  & Partial<ExtendedStorageModule>;
+
+/**
+ * Describes a storage module that provides all functions
+ */
+export type CompleteStorageModule<T = unknown> =
+  & MinimalStorageModule<T>
+  & ExtendedStorageModule;
+
+/**
+ * Describes the minimal interface that must be provided by each storage module
+ */
+export interface MinimalStorageModule<T = unknown> {
   /**
    * Check whether the storage is writable in general, or at or below a particular key.
    * There still may be some sub-keys that differ.
@@ -65,6 +79,21 @@ export interface StorageModule<T = unknown> {
 }
 
 /**
+ * Describes an optional extended interface that may be provided by a storage module
+ */
+export interface ExtendedStorageModule {
+  /**
+   * Copy an item and all sub items to a new key.
+   */
+  copyItems(fromPrefix: StorageKey, toPrefix: StorageKey): Promise<void>;
+
+  /**
+   * Move an item and all sub items to a new key.
+   */
+  moveItems(fromPrefix: StorageKey, toPrefix: StorageKey): Promise<void>;
+}
+
+/**
  * Additional functions for a store that delegates to one or more other stores
  */
 export interface DelegatedStore {
@@ -75,7 +104,7 @@ export interface DelegatedStore {
    * @param prefix delegate only for StorageKeys starting with this prefix
    */
   setStore(
-    storageModule?: StorageModule | Promise<StorageModule>,
+    storageModule?: Awaitable<StorageModule>,
     prefix?: string,
   ): void;
 
@@ -95,3 +124,8 @@ export interface DelegatedStore {
    */
   url(key?: StorageKey | string): Promise<string>;
 }
+
+/**
+ * A value that may be `await`ed.
+ */
+export type Awaitable<T> = T | Promise<T>;

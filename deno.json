@@ -10,7 +10,8 @@
   },
   "compilerOptions": {
     "noUncheckedIndexedAccess": true,
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true
   },
   "workspace": [
     "./store-common",
@@ -23,13 +24,13 @@
     "./store"
   ],
   "imports": {
-    "@jollytoad/store": "jsr:@jollytoad/store@^0.5.0",
-    "@jollytoad/store-common": "jsr:@jollytoad/store-common@^0.5.0",
-    "@jollytoad/store-deno-fs": "jsr:@jollytoad/store-deno-fs@^0.5.0",
-    "@jollytoad/store-deno-kv": "jsr:@jollytoad/store-deno-kv@^0.5.0",
-    "@jollytoad/store-deno-kv-fs": "jsr:@jollytoad/store-deno-kv-fs@^0.5.0",
-    "@jollytoad/store-no-op": "jsr:@jollytoad/store-no-op@^0.5.0",
-    "@jollytoad/store-web-storage": "jsr:@jollytoad/store-web-storage@^0.5.0",
+    "@jollytoad/store": "jsr:@jollytoad/store@^0.6.0",
+    "@jollytoad/store-common": "jsr:@jollytoad/store-common@^0.6.0",
+    "@jollytoad/store-deno-fs": "jsr:@jollytoad/store-deno-fs@^0.6.0",
+    "@jollytoad/store-deno-kv": "jsr:@jollytoad/store-deno-kv@^0.6.0",
+    "@jollytoad/store-deno-kv-fs": "jsr:@jollytoad/store-deno-kv-fs@^0.6.0",
+    "@jollytoad/store-no-op": "jsr:@jollytoad/store-no-op@^0.6.0",
+    "@jollytoad/store-web-storage": "jsr:@jollytoad/store-web-storage@^0.6.0",
     "@std/assert": "jsr:@std/assert@^1.0.14",
     "@std/fs": "jsr:@std/fs@^1.0.19",
     "@std/path": "jsr:@std/path@^1.1.2"

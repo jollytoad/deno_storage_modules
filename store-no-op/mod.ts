@@ -1,4 +1,8 @@
-import type { StorageKey, StorageModule } from "@jollytoad/store-common/types";
+import type {
+  MinimalStorageModule,
+  StorageKey,
+  StorageModule,
+} from "@jollytoad/store-common/types";
 
 export type { StorageKey, StorageModule };
 
@@ -12,7 +16,7 @@ export type { StorageKey, StorageModule };
   clearItems,
   close,
   url,
-}) satisfies StorageModule;
+}) satisfies MinimalStorageModule;
 
 /**
  * Returns the `import.meta.url` of the module.

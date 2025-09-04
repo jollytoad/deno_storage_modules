@@ -2,10 +2,12 @@ import { assertRejects } from "@std/assert";
 import {
   open,
   testClearItems,
+  testCopyItems,
   testGetItem,
   testHasItem,
   testIsWriteable,
   testListItems,
+  testMoveItems,
   testRemoveItem,
   testSetItem,
   testUrl,
@@ -31,6 +33,8 @@ Deno.test("store - via STORAGE_MODULE", async (t) => {
     await testListItems(t, store);
     await testRemoveItem(t, store);
     await testClearItems(t, store);
+    await testCopyItems(t, store);
+    await testMoveItems(t, store);
   } finally {
     await store.close();
   }
@@ -50,6 +54,8 @@ Deno.test("store - via setStore()", async (t) => {
     await testListItems(t, store);
     await testRemoveItem(t, store);
     await testClearItems(t, store);
+    await testCopyItems(t, store);
+    await testMoveItems(t, store);
   } finally {
     await store.close();
   }
@@ -88,6 +94,8 @@ Deno.test("store - with prefix", async (t) => {
     await testListItems(t, store);
     await testRemoveItem(t, store);
     await testClearItems(t, store);
+    await testCopyItems(t, store);
+    await testMoveItems(t, store);
   } finally {
     await store.close();
   }

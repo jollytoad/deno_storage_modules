@@ -1,8 +1,16 @@
 import type {
+  Awaitable,
+  CompleteStorageModule,
   DelegatedStore,
   StorageKey,
   StorageModule,
 } from "@jollytoad/store-common/types";
+import {
+  copyItems as copyItemsDefault,
+} from "@jollytoad/store-common/copy-items";
+import {
+  moveItems as moveItemsDefault,
+} from "@jollytoad/store-common/move-items";
 
 export type { DelegatedStore, StorageKey, StorageModule };
 
@@ -14,11 +22,13 @@ export type { DelegatedStore, StorageKey, StorageModule };
   removeItem,
   listItems,
   clearItems,
+  copyItems,
+  moveItems,
   close,
   url,
   setStore,
   getStore,
-}) satisfies StorageModule & DelegatedStore;
+}) satisfies CompleteStorageModule & DelegatedStore;
 
 let defaultStore: Promise<StorageModule> | undefined;
 let stores: Map<string, Promise<StorageModule>> | undefined;
@@ -31,7 +41,7 @@ let stores: Map<string, Promise<StorageModule>> | undefined;
  *   then the given storage module is set as the default/fallback store
  */
 export function setStore(
-  storageModule?: StorageModule | Promise<StorageModule>,
+  storageModule?: Awaitable<StorageModule>,
   prefix?: string,
 ) {
   if (prefix === undefined) {
@@ -132,6 +142,28 @@ export async function* listItems<T>(
  */
 export async function clearItems(prefix: StorageKey): Promise<void> {
   return (await getStore(prefix)).clearItems(prefix);
+}
+
+/**
+ * Copy an item and all sub items to a new key.
+ */
+export async function copyItems(
+  fromPrefix: StorageKey,
+  toPrefix: StorageKey,
+): Promise<void> {
+  const stores = await Promise.all([getStore(fromPrefix), getStore(toPrefix)]);
+  await copyItemsDefault(fromPrefix, toPrefix, ...stores);
+}
+
+/**
+ * Move an item and all sub items to a new key.
+ */
+export async function moveItems(
+  fromPrefix: StorageKey,
+  toPrefix: StorageKey,
+): Promise<void> {
+  const stores = await Promise.all([getStore(fromPrefix), getStore(toPrefix)]);
+  await moveItemsDefault(fromPrefix, toPrefix, ...stores);
 }
 
 /**

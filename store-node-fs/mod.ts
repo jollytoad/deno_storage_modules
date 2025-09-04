@@ -1,4 +1,8 @@
-import type { StorageKey, StorageModule } from "@jollytoad/store-common/types";
+import type {
+  CompleteStorageModule,
+  StorageKey,
+  StorageModule,
+} from "@jollytoad/store-common/types";
 import { fromStrKey, toStrKey } from "@jollytoad/store-common/key-utils";
 
 import * as fs from "node:fs/promises";
@@ -15,9 +19,11 @@ export type { StorageKey, StorageModule };
   removeItem,
   listItems,
   clearItems,
+  copyItems,
+  moveItems,
   close,
   url,
-}) satisfies StorageModule;
+}) satisfies CompleteStorageModule;
 
 /**
  * Returns the `import.meta.url` of the module.
@@ -139,7 +145,7 @@ export async function* listItems<T>(
       if (entry.name.endsWith(".json")) {
         const key = relative(root, entry.path.slice(0, -5)).split(sep);
         const item = await getItem<T>(key);
-        if (item) {
+        if (item !== undefined) {
           yield [fromStrKey(key), item];
         }
       }
@@ -181,6 +187,39 @@ export async function clearItems(keyPrefix: StorageKey): Promise<void> {
       throw e;
     }
   }
+}
+
+/**
+ * Copy an item and all sub items to a new key.
+ */
+export async function copyItems<T>(
+  fromPrefix: StorageKey,
+  toPrefix: StorageKey,
+): Promise<void> {
+  await fs.rm(filepath(toPrefix), { force: true });
+  await fs.copyFile(
+    filepath(fromPrefix),
+    filepath(toPrefix),
+    fs.constants.COPYFILE_FICLONE,
+  );
+  await fs.rm(dirpath(toPrefix), { recursive: true });
+  await fs.cp(dirpath(fromPrefix), dirpath(toPrefix), {
+    recursive: true,
+    mode: fs.constants.COPYFILE_FICLONE,
+  });
+}
+
+/**
+ * Move an item and all sub items to a new key.
+ */
+export async function moveItems<T>(
+  fromPrefix: StorageKey,
+  toPrefix: StorageKey,
+): Promise<void> {
+  await fs.rm(filepath(toPrefix), { force: true });
+  await fs.rename(filepath(fromPrefix), filepath(toPrefix));
+  await fs.rm(dirpath(toPrefix), { recursive: true });
+  await fs.rename(dirpath(fromPrefix), dirpath(toPrefix));
 }
 
 /**

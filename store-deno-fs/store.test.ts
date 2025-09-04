@@ -2,10 +2,12 @@ import { assert } from "@std/assert";
 import {
   open,
   testClearItems,
+  testCopyItems,
   testGetItem,
   testHasItem,
   testIsWriteable,
   testListItems,
+  testMoveItems,
   testRemoveItem,
   testSetItem,
   testUrl,
@@ -25,6 +27,8 @@ Deno.test("store-deno-fs", async (t) => {
     await testListItems(t, store);
     await testRemoveItem(t, store);
     await testClearItems(t, store);
+    await testCopyItems(t, store);
+    await testMoveItems(t, store);
     await testDirectoryPurge(t, store);
     // Ordering is not currently supported on FS
     // await testOrdering(t, store);
