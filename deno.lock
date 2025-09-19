@@ -1,12 +1,14 @@
 {
   "version": "5",
   "specifiers": {
+    "jsr:@std/assert@^1.0.13": "1.0.14",
     "jsr:@std/assert@^1.0.14": "1.0.14",
     "jsr:@std/fs@^1.0.19": "1.0.19",
     "jsr:@std/internal@^1.0.10": "1.0.10",
     "jsr:@std/internal@^1.0.9": "1.0.10",
     "jsr:@std/path@^1.1.1": "1.1.2",
     "jsr:@std/path@^1.1.2": "1.1.2",
+    "jsr:@std/testing@^1.0.15": "1.0.15",
     "npm:@types/node@*": "24.2.0"
   },
   "jsr": {
@@ -31,6 +33,12 @@
       "dependencies": [
         "jsr:@std/internal@^1.0.10"
       ]
+    },
+    "@std/testing@1.0.15": {
+      "integrity": "a490169f5ccb0f3ae9c94fbc69d2cd43603f2cffb41713a85f99bbb0e3087cbc",
+      "dependencies": [
+        "jsr:@std/assert@^1.0.13"
+      ]
     }
   },
   "npm": {
@@ -46,16 +54,17 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@jollytoad/store-common@0.6",
-      "jsr:@jollytoad/store-deno-fs@0.6",
-      "jsr:@jollytoad/store-deno-kv-fs@0.6",
-      "jsr:@jollytoad/store-deno-kv@0.6",
-      "jsr:@jollytoad/store-no-op@0.6",
-      "jsr:@jollytoad/store-web-storage@0.6",
-      "jsr:@jollytoad/store@0.6",
+      "jsr:@jollytoad/store-common@0.7",
+      "jsr:@jollytoad/store-deno-fs@0.7",
+      "jsr:@jollytoad/store-deno-kv-fs@0.7",
+      "jsr:@jollytoad/store-deno-kv@0.7",
+      "jsr:@jollytoad/store-no-op@0.7",
+      "jsr:@jollytoad/store-web-storage@0.7",
+      "jsr:@jollytoad/store@0.7",
       "jsr:@std/assert@^1.0.14",
       "jsr:@std/fs@^1.0.19",
-      "jsr:@std/path@^1.1.2"
+      "jsr:@std/path@^1.1.2",
+      "jsr:@std/testing@^1.0.15"
     ]
   }
 }

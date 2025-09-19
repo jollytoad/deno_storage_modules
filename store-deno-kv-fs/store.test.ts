@@ -4,21 +4,21 @@ import {
   testCopyItems,
   testGetItem,
   testHasItem,
-  testIsWriteable,
+  testIsWritable,
   testListItems,
   testMoveItems,
   testOrdering,
   testRemoveItem,
   testSetItem,
   testUrl,
-} from "../store-common/test-storage-module.ts";
+} from "@jollytoad/store-common/test-storage-module";
 import * as store from "./mod.ts";
 
 Deno.test("store-deno-kv-fs", async (t) => {
   try {
     await open(t, store);
     await testUrl(t, store, "store-deno-kv-fs");
-    await testIsWriteable(t, store);
+    await testIsWritable(t, store);
     await testSetItem(t, store);
     await testHasItem(t, store);
     await testGetItem(t, store);

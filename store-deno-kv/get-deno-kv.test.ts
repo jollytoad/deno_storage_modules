@@ -1,8 +1,8 @@
 import { assertInstanceOf, assertStrictEquals } from "@std/assert";
 import { getDenoKv } from "./get-deno-kv.ts";
 import * as denoKvStore from "./mod.ts";
-import * as denoFsStore from "../store-deno-fs/mod.ts";
-import * as store from "../store/mod.ts";
+import * as denoFsStore from "@jollytoad/store-deno-fs";
+import * as store from "@jollytoad/store";
 
 Deno.test("getDenoKv() returns Deno.Kv when given store-deno-kv directly", async () => {
   try {

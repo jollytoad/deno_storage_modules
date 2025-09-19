@@ -1,9 +1,8 @@
 {
-  "name": "@jollytoad/store-deno-kv",
+  "name": "@jollytoad/store-extend",
   "version": "0.7.0",
   "exports": {
     ".": "./mod.ts",
-    "./get-deno-kv": "./get-deno-kv.ts",
     "./types": "./types.ts"
   }
 }

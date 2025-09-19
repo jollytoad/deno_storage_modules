@@ -43,16 +43,16 @@ export async function testUrlForPrefix(
 }
 
 /**
- * Test the isWriteable() function of the given storage module.
+ * Test the isWritable() function of the given storage module.
  */
-export async function testIsWriteable(
+export async function testIsWritable(
   t: Deno.TestContext,
   { isWritable }: StorageModule,
   expected = true,
   prefix?: string,
 ) {
   await t.step(
-    `isWriteable(${prefix ? `["${prefix}"]` : ""}) to be ${expected}`,
+    `isWritable(${prefix ? `["${prefix}"]` : ""}) to be ${expected}`,
     async () => {
       assertEquals(await isWritable(prefix ? [prefix] : undefined), expected);
     },

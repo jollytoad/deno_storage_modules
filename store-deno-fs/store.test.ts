@@ -5,22 +5,22 @@ import {
   testCopyItems,
   testGetItem,
   testHasItem,
-  testIsWriteable,
+  testIsWritable,
   testListItems,
   testMoveItems,
   testRemoveItem,
   testSetItem,
   testUrl,
-} from "../store-common/test-storage-module.ts";
+} from "@jollytoad/store-common/test-storage-module";
 import * as store from "./mod.ts";
-import type { StorageModule } from "../store-common/types.ts";
+import type { StorageModule } from "@jollytoad/store-common/types";
 import { exists } from "@std/fs/exists";
 
 Deno.test("store-deno-fs", async (t) => {
   try {
     await open(t, store);
     await testUrl(t, store, "store-deno-fs");
-    await testIsWriteable(t, store);
+    await testIsWritable(t, store);
     await testSetItem(t, store);
     await testHasItem(t, store);
     await testGetItem(t, store);

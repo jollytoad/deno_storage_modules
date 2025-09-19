@@ -1,6 +1,6 @@
 {
   "name": "@jollytoad/store-deno-fs",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "exports": {
     ".": "./mod.ts"
   }

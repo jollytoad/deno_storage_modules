@@ -10,7 +10,7 @@ import {
   testRemoveItem,
   testSetItem,
   testUrl,
-} from "../store-common/test-storage-module.ts";
+} from "@jollytoad/store-common/test-storage-module";
 import * as store from "./mod.ts";
 
 Deno.test("store-web-storage", async (t) => {

@@ -5,21 +5,21 @@ import {
   testCopyItems,
   testGetItem,
   testHasItem,
-  testIsWriteable,
+  testIsWritable,
   testListItems,
   testMoveItems,
   testRemoveItem,
   testSetItem,
   testUrl,
   testUrlForPrefix,
-} from "../store-common/test-storage-module.ts";
+} from "@jollytoad/store-common/test-storage-module";
 import * as store from "./mod.ts";
 
 Deno.test("store - via STORAGE_MODULE", async (t) => {
   try {
     Deno.env.set(
       "STORAGE_MODULE",
-      import.meta.resolve("../store-web-storage/mod.ts"),
+      import.meta.resolve("@jollytoad/store-web-storage"),
     );
 
     // clear the store implementation, so it gets picked up by the env var
@@ -44,7 +44,7 @@ Deno.test("store - via setStore()", async (t) => {
   try {
     Deno.env.delete("STORAGE_MODULE");
 
-    store.setStore(import("../store-deno-kv/mod.ts"));
+    store.setStore(import("@jollytoad/store-deno-kv"));
 
     await open(t, store);
     await testUrl(t, store, "store-deno-kv");
@@ -77,16 +77,16 @@ Deno.test("store - with prefix", async (t) => {
   try {
     Deno.env.delete("STORAGE_MODULE");
 
-    store.setStore(import("../store-deno-kv/mod.ts"), "store");
-    store.setStore(import("../store-no-op/mod.ts"));
+    store.setStore(import("@jollytoad/store-deno-kv"), "store");
+    store.setStore(import("@jollytoad/store-no-op"));
 
     await open(t, store);
 
     await testUrl(t, store, "store-no-op");
     await testUrlForPrefix(t, store, "store-deno-kv", "store");
 
-    await testIsWriteable(t, store, false);
-    await testIsWriteable(t, store, true, "store");
+    await testIsWritable(t, store, false);
+    await testIsWritable(t, store, true, "store");
 
     await testSetItem(t, store);
     await testHasItem(t, store);
