@@ -28,18 +28,18 @@ const consistency: Deno.KvConsistencyLevel = "eventual";
 export function url(): Promise<string> {
   return Promise.resolve(import.meta.url);
 }
+
 /**
  * Check whether the storage is writable in general, or at or below a particular key.
  * There still may be some sub-keys that differ.
  */
-
 export function isWritable(_key?: StorageKey): Promise<boolean> {
   return Promise.resolve(true);
 }
+
 /**
  * Determine whether a value is set for the given key.
  */
-
 export async function hasItem<T>(key: StorageKey): Promise<boolean> {
   return (await (await getDenoKv(key)).get<T>(key, { consistency }))
     .versionstamp !== null;

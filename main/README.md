@@ -65,6 +65,22 @@ import { setItem } from "jsr:@storage/main";
 await setItem(["store", "hello"], "world");
 ```
 
+### Delegate to multiple stores
+
+You can also set a different storage implementation for a top-level key prefix:
+
+```ts
+import { setStore } from "jsr:@storage/main";
+import * as fsStore from "jsr:@storage/deno-fs";
+import * as kvStore from "jsr:@storage/deno-kv";
+
+setStore(fsStore, "store1");
+setStore(kvStore, "store1");
+
+await setItem(["store1", "hello"], "world"); // stores in the filesystem
+await setItem(["store2", "hello"], "world"); // stores in Deno KV
+```
+
 ## Via environment variable
 
 Set the `STORAGE_MODULE` environment variable to the URL of the preferred
@@ -145,7 +161,7 @@ You can swap the imported module for any of the alternative implementations,
 
 ## Modules
 
-### [store-web-storage](https://jsr.io/@storage/web-storage)
+### [@storage/web-storage](https://jsr.io/@storage/web-storage)
 
 This uses `localStorage` of the standard
 [Web Storage](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API)
@@ -156,7 +172,7 @@ with the `localStorage` API.
 
 Import mapping: `"$store": "jsr:@storage/web-storage"`
 
-### [store-deno-fs](https://jsr.io/@storage/deno-fs)
+### [@storage/deno-fs](https://jsr.io/@storage/deno-fs)
 
 This stores values in individual files under a directory hierarchy via
 [Deno fs](https://deno.land/api?s=Deno.readTextFile) calls. By default this is
@@ -170,13 +186,18 @@ eg: `["one", "two", "three"]` -> `.store/one/two/three.json`
 
 Import mapping: `"$store": "jsr:@storage/deno-fs"`
 
-### [store-deno-kv](https://jsr.io/@storage/deno-kv)
+### [@storage/node-fs](https://jsr.io/@storage/node-fs)
+
+This is pretty much the same as `@storage/deno-fs` but uses `node:fs` API
+instead of `Deno`, and so will work in Node.js, Deno, and Bun.
+
+### [@storage/deno-kv](https://jsr.io/@storage/deno-kv)
 
 Uses the [Deno KV](https://docs.deno.com/deploy/kv/manual) API for storage.
 
 Import mapping: `"$store": "jsr:@storage/deno-kv"`
 
-### [store-deno-kv-fs](https://jsr.io/@storage/deno-kv-fs)
+### [@storage/deno-kv-fs](https://jsr.io/@storage/deno-kv-fs)
 
 Combination of a readonly `deno-fs` and writeable `deno-kv`, allowing fallback
 or immutable storage in the filesystem, and mutable storage via the KV store.
@@ -187,7 +208,7 @@ overrides filesystem values.
 
 Import mapping: `"$store": "jsr:@storage/deno-kv-fs"`
 
-### [store-no-op](https://jsr.io/@storage/no-op)
+### [@storage/no-op](https://jsr.io/@storage/no-op)
 
 For the odd occasion when you want to disable storage entirely but not break
 your app. This implementation does nothing.
@@ -201,8 +222,9 @@ and switch to it.
 
 See the existing implementations for inspiration...
 
-- [web-storage](https://github.com/jollytoad/deno_storage_modules/blob/main/store-web-storage/mod.ts)
-- [deno-fs](https://github.com/jollytoad/deno_storage_modules/blob/main/store-deno-fs/mod.ts)
-- [deno-kv](https://github.com/jollytoad/deno_storage_modules/blob/main/store-deno-kv/mod.ts)
-- [deno-kv-fs](https://github.com/jollytoad/deno_storage_modules/blob/main/store-deno-kv-fs/mod.ts)
-- [no-op](https://github.com/jollytoad/deno_storage_modules/blob/main/store-no-op/mod.ts)
+- [web-storage](https://github.com/jollytoad/deno_storage_modules/blob/main/web-storage/mod.ts)
+- [deno-fs](https://github.com/jollytoad/deno_storage_modules/blob/main/deno-fs/mod.ts)
+- [node-fs](https://github.com/jollytoad/deno_storage_modules/blob/main/node-fs/mod.ts)
+- [deno-kv](https://github.com/jollytoad/deno_storage_modules/blob/main/deno-kv/mod.ts)
+- [deno-kv-fs](https://github.com/jollytoad/deno_storage_modules/blob/main/deno-kv-fs/mod.ts)
+- [no-op](https://github.com/jollytoad/deno_storage_modules/blob/main/no-op/mod.ts)
