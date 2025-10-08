@@ -1,0 +1,7 @@
+{
+  "name": "@storage/deno-fs",
+  "version": "0.8.0",
+  "exports": {
+    ".": "./mod.ts"
+  }
+}

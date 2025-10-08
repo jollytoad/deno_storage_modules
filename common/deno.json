@@ -1,0 +1,11 @@
+{
+  "name": "@storage/common",
+  "version": "0.8.0",
+  "exports": {
+    "./key-utils": "./key-utils.ts",
+    "./copy-items": "./copy-items.ts",
+    "./move-items": "./move-items.ts",
+    "./test-storage-module": "./test-storage-module.ts",
+    "./types": "./types.ts"
+  }
+}

@@ -1,8 +1,0 @@
-{
-  "name": "@jollytoad/store-extend",
-  "version": "0.7.0",
-  "exports": {
-    ".": "./mod.ts",
-    "./types": "./types.ts"
-  }
-}

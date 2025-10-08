@@ -1,0 +1,9 @@
+{
+  "name": "@storage/deno-kv",
+  "version": "0.8.0",
+  "exports": {
+    ".": "./mod.ts",
+    "./get-deno-kv": "./get-deno-kv.ts",
+    "./types": "./types.ts"
+  }
+}
