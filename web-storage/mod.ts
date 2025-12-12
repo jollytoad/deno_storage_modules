@@ -1,5 +1,6 @@
 import { fromStrKey, toStrKey } from "@storage/common/key-utils";
 import type {
+  ListItemsOptions,
   MinimalStorageModule,
   StorageKey,
   StorageModule,
@@ -76,8 +77,9 @@ export function removeItem(key: StorageKey): Promise<void> {
  */
 export async function* listItems<T>(
   keyPrefix: StorageKey = [],
-  reverse = false,
+  options?: ListItemsOptions,
 ): AsyncIterable<[StorageKey, T]> {
+  const reverse = options?.reverse ?? false;
   const prefix = keyPrefix.length ? storageKey(keyPrefix) + SEP : "";
 
   for (

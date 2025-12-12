@@ -121,11 +121,15 @@ naming scheme similar to the standard
 - `setItem(key, value)` - set the value for the exact key in the store
 - `hasItem(key)` - whether a value at the exact key has been set
 - `getItem(key)` - get the value at the exact key
-- `listItems(prefix, reverse)` - iterates over the items that match the key
+- `listItems(prefix, options?)` - iterates over the items that match the key
   prefix
 - `removeItem(key)` - delete the value for the exact key (ie. not any sub-items)
 - `clearItems(prefix)` - deletes all items that match the key prefix (ie. an
   item and sub-items recursively)
+
+The `options` of `listItems` allow reversing of the results (if the underlying
+store supports it), and adjustment of page size for storage mechanism that fetch
+via paged requests.
 
 The following are extended functions, that a storage module may optionally
 implement:

@@ -1,4 +1,5 @@
 import type {
+  ListItemsOptions,
   MinimalStorageModule,
   StorageKey,
   StorageModule,
@@ -75,12 +76,12 @@ export async function removeItem(key: StorageKey): Promise<void> {
  */
 export async function* listItems<T>(
   prefix: StorageKey = [],
-  reverse = false,
+  options?: ListItemsOptions,
 ): AsyncIterable<[StorageKey, T]> {
   for await (
     const entry of (await getDenoKv(prefix)).list<T>({ prefix }, {
       consistency,
-      reverse,
+      reverse: options?.reverse ?? false,
     })
   ) {
     yield [entry.key as StorageKey, entry.value];

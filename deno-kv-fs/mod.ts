@@ -1,6 +1,7 @@
 import * as kv from "@storage/deno-kv";
 import * as fs from "@storage/deno-fs";
 import type {
+  ListItemsOptions,
   MinimalStorageModule,
   StorageKey,
   StorageModule,
@@ -80,16 +81,16 @@ export async function removeItem(key: StorageKey): Promise<void> {
  */
 export async function* listItems<T>(
   prefix: StorageKey = [],
-  reverse = false,
+  options?: ListItemsOptions,
 ): AsyncIterable<[StorageKey, T]> {
   if (isFsPrimary()) {
-    yield* fs.listItems(prefix, reverse);
+    yield* fs.listItems(prefix, options);
     // TODO: skip items already listed from FS
-    yield* kv.listItems(prefix, reverse);
+    yield* kv.listItems(prefix, options);
   } else {
-    yield* kv.listItems(prefix, reverse);
+    yield* kv.listItems(prefix, options);
     // TODO: skip items already listed from KV
-    yield* fs.listItems(prefix, reverse);
+    yield* fs.listItems(prefix, options);
   }
 }
 

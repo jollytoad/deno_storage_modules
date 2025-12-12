@@ -58,7 +58,7 @@ export interface MinimalStorageModule<T = unknown> {
    */
   listItems(
     prefix?: StorageKey,
-    reverse?: boolean,
+    options?: ListItemsOptions,
   ): AsyncIterable<[StorageKey, T]>;
 
   /**
@@ -76,6 +76,20 @@ export interface MinimalStorageModule<T = unknown> {
    * Returns the `import.meta.url` of the module.
    */
   url(): Promise<string>;
+}
+
+/**
+ * Options for `listItems`
+ */
+export interface ListItemsOptions {
+  /**
+   * Reverse the order of the query, support for this is optional.
+   */
+  reverse?: boolean;
+  /**
+   * Set the preferred page size for storage mechanisms that fetch via paged requests.
+   */
+  pageSize?: number;
 }
 
 /**

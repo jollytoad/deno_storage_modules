@@ -374,7 +374,9 @@ export async function testOrdering(
     });
 
     await t.step("in reverse order", async () => {
-      const values = await gatherValues(listItems(["store_list"], true));
+      const values = await gatherValues(
+        listItems(["store_list"], { reverse: true }),
+      );
       assertEquals(values, [4, 3, 2, 1]);
     });
 

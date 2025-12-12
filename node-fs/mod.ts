@@ -1,5 +1,6 @@
 import type {
   CompleteStorageModule,
+  ListItemsOptions,
   StorageKey,
   StorageModule,
 } from "@storage/common/types";
@@ -135,7 +136,7 @@ export async function removeItem(key: StorageKey): Promise<void> {
  */
 export async function* listItems<T>(
   keyPrefix: StorageKey = [],
-  _reverse = false,
+  _options?: ListItemsOptions,
 ): AsyncIterable<[StorageKey, T]> {
   const root = dirpath();
   const path = dirpath(keyPrefix);

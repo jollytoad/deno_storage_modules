@@ -1,4 +1,5 @@
 import type {
+  ListItemsOptions,
   MinimalStorageModule,
   StorageKey,
   StorageModule,
@@ -65,7 +66,7 @@ export function removeItem(_key: StorageKey): Promise<void> {
  */
 export async function* listItems<T>(
   _prefix: StorageKey = [],
-  _reverse = false,
+  _options?: ListItemsOptions,
 ): AsyncIterable<[StorageKey, T]> {
   // do nothing
 }

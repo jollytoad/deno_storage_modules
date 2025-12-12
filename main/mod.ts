@@ -2,6 +2,7 @@ import type {
   Awaitable,
   CompleteStorageModule,
   DelegatedStore,
+  ListItemsOptions,
   StorageKey,
   StorageModule,
 } from "@storage/common/types";
@@ -126,9 +127,9 @@ export async function removeItem(key: StorageKey): Promise<void> {
  */
 export async function* listItems<T>(
   prefix: StorageKey = [],
-  reverse = false,
+  options?: ListItemsOptions,
 ): AsyncIterable<[StorageKey, T]> {
-  yield* (await getStore(prefix)).listItems(prefix, reverse) as AsyncIterable<
+  yield* (await getStore(prefix)).listItems(prefix, options) as AsyncIterable<
     [StorageKey, T]
   >;
 }
