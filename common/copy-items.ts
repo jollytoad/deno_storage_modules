@@ -7,6 +7,7 @@ import type {
 /**
  * Default implementation of copyItems for stores that might
  * not implement it, or for copying between stores.
+ * This will not preserve the expiry time of the item at the new key.
  */
 export async function copyItems<T>(
   fromPrefix: StorageKey,

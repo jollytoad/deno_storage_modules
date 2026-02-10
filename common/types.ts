@@ -45,7 +45,7 @@ export interface MinimalStorageModule<T = unknown> {
   /**
    * Set a value for the given key.
    */
-  setItem(key: StorageKey, value: T): Promise<void>;
+  setItem(key: StorageKey, value: T, options?: SetItemOptions): Promise<void>;
 
   /**
    * Remove the value with the given key.
@@ -76,6 +76,16 @@ export interface MinimalStorageModule<T = unknown> {
    * Returns the `import.meta.url` of the module.
    */
   url(): Promise<string>;
+}
+
+/**
+ * Options for `setItem`
+ */
+export interface SetItemOptions {
+  /**
+   * Set an expiry time (in milliseconds) for this item, support for this is optional.
+   */
+  expireIn?: number;
 }
 
 /**

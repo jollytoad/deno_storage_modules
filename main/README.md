@@ -118,7 +118,7 @@ Here is a quick overview of the main functions, they deliberately follow a
 naming scheme similar to the standard
 [Web Storage API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API):
 
-- `setItem(key, value)` - set the value for the exact key in the store
+- `setItem(key, value, options?)` - set the value for the exact key in the store
 - `hasItem(key)` - whether a value at the exact key has been set
 - `getItem(key)` - get the value at the exact key
 - `listItems(prefix, options?)` - iterates over the items that match the key
@@ -126,6 +126,9 @@ naming scheme similar to the standard
 - `removeItem(key)` - delete the value for the exact key (ie. not any sub-items)
 - `clearItems(prefix)` - deletes all items that match the key prefix (ie. an
   item and sub-items recursively)
+
+The `options` of `setItem` allows specifying of an expiry time (if the
+underlying store supports it).
 
 The `options` of `listItems` allow reversing of the results (if the underlying
 store supports it), and adjustment of page size for storage mechanism that fetch

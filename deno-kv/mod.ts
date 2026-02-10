@@ -1,6 +1,7 @@
 import type {
   ListItemsOptions,
   MinimalStorageModule,
+  SetItemOptions,
   StorageKey,
   StorageModule,
 } from "@storage/common/types";
@@ -56,9 +57,14 @@ export async function getItem<T>(key: StorageKey): Promise<T | undefined> {
 
 /**
  * Set a value for the given key.
+ * Supports the `expireIn` option.
  */
-export async function setItem<T>(key: StorageKey, value: T): Promise<void> {
-  await (await getDenoKv(key)).set(key, value);
+export async function setItem<T>(
+  key: StorageKey,
+  value: T,
+  options?: SetItemOptions,
+): Promise<void> {
+  await (await getDenoKv(key)).set(key, value, options);
 }
 
 /**

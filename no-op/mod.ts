@@ -1,6 +1,7 @@
 import type {
   ListItemsOptions,
   MinimalStorageModule,
+  SetItemOptions,
   StorageKey,
   StorageModule,
 } from "@storage/common/types";
@@ -50,7 +51,11 @@ export function getItem<T>(_key: StorageKey): Promise<T | undefined> {
 /**
  * Does nothing, as this is not a real storage mechanism.
  */
-export function setItem<T>(_key: StorageKey, _value: T): Promise<void> {
+export function setItem<T>(
+  _key: StorageKey,
+  _value: T,
+  _options?: SetItemOptions,
+): Promise<void> {
   return Promise.resolve();
 }
 

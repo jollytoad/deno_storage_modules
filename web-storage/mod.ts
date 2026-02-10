@@ -2,6 +2,7 @@ import { fromStrKey, toStrKey } from "@storage/common/key-utils";
 import type {
   ListItemsOptions,
   MinimalStorageModule,
+  SetItemOptions,
   StorageKey,
   StorageModule,
 } from "@storage/common/types";
@@ -57,8 +58,13 @@ export function getItem<T>(key: StorageKey): Promise<T | undefined> {
 
 /**
  * Set a value for the given key.
+ * Does not support the `expireIn` option.
  */
-export function setItem<T>(key: StorageKey, value: T): Promise<void> {
+export function setItem<T>(
+  key: StorageKey,
+  value: T,
+  _options?: SetItemOptions,
+): Promise<void> {
   localStorage.setItem(storageKey(key), JSON.stringify(value));
   return Promise.resolve();
 }

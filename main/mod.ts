@@ -3,6 +3,7 @@ import type {
   CompleteStorageModule,
   DelegatedStore,
   ListItemsOptions,
+  SetItemOptions,
   StorageKey,
   StorageModule,
 } from "@storage/common/types";
@@ -109,8 +110,12 @@ export async function getItem<T>(key: StorageKey): Promise<T | undefined> {
 /**
  * Set a value for the given key in the delegated storage.
  */
-export async function setItem<T>(key: StorageKey, value: T): Promise<void> {
-  return (await getStore(key)).setItem(key, value);
+export async function setItem<T>(
+  key: StorageKey,
+  value: T,
+  options?: SetItemOptions,
+): Promise<void> {
+  return (await getStore(key)).setItem(key, value, options);
 }
 
 /**
@@ -143,6 +148,7 @@ export async function clearItems(prefix: StorageKey): Promise<void> {
 
 /**
  * Copy an item and all sub items to a new key.
+ * This will not preserve the expiry time of the item at the new key.
  */
 export async function copyItems(
   fromPrefix: StorageKey,
@@ -154,6 +160,7 @@ export async function copyItems(
 
 /**
  * Move an item and all sub items to a new key.
+ * This will not preserve the expiry time of the item at the new key.
  */
 export async function moveItems(
   fromPrefix: StorageKey,

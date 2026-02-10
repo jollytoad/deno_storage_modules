@@ -3,6 +3,7 @@ import * as fs from "@storage/deno-fs";
 import type {
   ListItemsOptions,
   MinimalStorageModule,
+  SetItemOptions,
   StorageKey,
   StorageModule,
 } from "@storage/common/types";
@@ -59,8 +60,13 @@ export async function getItem<T>(key: StorageKey): Promise<T | undefined> {
 
 /**
  * Set a value for the given key.
+ * Does not support the `expireIn` option.
  */
-export async function setItem<T>(key: StorageKey, value: T): Promise<void> {
+export async function setItem<T>(
+  key: StorageKey,
+  value: T,
+  _options?: SetItemOptions,
+): Promise<void> {
   if (isFsPrimary() && await fs.hasItem(key)) {
     // Prevent saving of value that already exists in filesystem
     return;

@@ -11,6 +11,7 @@ import { move } from "@std/fs/move";
 import type {
   CompleteStorageModule,
   ListItemsOptions,
+  SetItemOptions,
   StorageKey,
   StorageModule,
 } from "@storage/common/types";
@@ -76,8 +77,13 @@ export async function getItem<T>(key: StorageKey): Promise<T | undefined> {
 
 /**
  * Set a value for the given key.
+ * Does not support the `expireIn` option.
  */
-export async function setItem<T>(key: StorageKey, value: T): Promise<void> {
+export async function setItem<T>(
+  key: StorageKey,
+  value: T,
+  _options?: SetItemOptions,
+): Promise<void> {
   const path = filepath(key);
   await ensureDir(dirname(path));
   await Deno.writeTextFile(path, JSON.stringify(value));
