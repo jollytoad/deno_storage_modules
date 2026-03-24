@@ -1,9 +1,9 @@
-import type { StorageModule } from "@storage/common/types";
+import type { StorageProvider } from "@storage/types";
 
 /**
  * Import the storage module declared in the `STORAGE_MODULE` environment variable.
  */
-export function fromEnv(): Promise<StorageModule> {
+export function fromEnv(): Promise<StorageProvider> {
   const moduleSpecifier = getEnv("STORAGE_MODULE");
   if (moduleSpecifier) {
     return import(import.meta.resolve(moduleSpecifier));

@@ -1,59 +1,39 @@
 import { assert } from "@std/assert";
-import {
-  open,
-  testClearItems,
-  testCopyItems,
-  testGetItem,
-  testHasItem,
-  testIsWritable,
-  testListItems,
-  testMoveItems,
-  testRemoveItem,
-  testSetItem,
-  testUrl,
-} from "@storage/common/test-storage-module";
 import * as store from "./mod.ts";
-import type { StorageModule } from "@storage/common/types";
 import { exists } from "@std/fs/exists";
+import type { StorageProvider } from "@storage/types";
+import { removeItem, setItem } from "@storage/fns";
+import { testStore } from "@storage/test";
 
 Deno.test("@storage/deno-fs", async (t) => {
-  try {
-    await open(t, store);
-    await testUrl(t, store, "deno-fs");
-    await testIsWritable(t, store);
-    await testSetItem(t, store);
-    await testHasItem(t, store);
-    await testGetItem(t, store);
-    await testListItems(t, store);
-    await testRemoveItem(t, store);
-    await testClearItems(t, store);
-    await testCopyItems(t, store);
-    await testMoveItems(t, store);
-    await testDirectoryPurge(t, store);
-    // Ordering is not currently supported on FS
-    // await testOrdering(t, store);
-  } finally {
-    await store.close();
-  }
+  await testStore(t, store, {
+    urlIncludes: "deno-fs",
+    extraTests: [
+      testDirectoryPurge,
+    ],
+  });
 });
 
 async function testDirectoryPurge(
   t: Deno.TestContext,
-  { setItem, removeItem }: StorageModule,
+  store: StorageProvider,
 ) {
-  await t.step("empty folders are deleted from fs", async () => {
-    await setItem(["store", "deeply", "nested", "item"], true);
+  await t.step({
+    name: "empty folders are deleted from fs",
+    fn: async () => {
+      await setItem(store, ["store", "deeply", "nested", "item"], true);
 
-    assert(
-      await exists(".store/store/deeply/nested"),
-      "Expected .store/store/deeply/nested folder to exist",
-    );
+      assert(
+        await exists(".store/store/deeply/nested"),
+        "Expected .store/store/deeply/nested folder to exist",
+      );
 
-    await removeItem(["store", "deeply", "nested", "item"]);
+      await removeItem(store, ["store", "deeply", "nested", "item"]);
 
-    assert(
-      !await exists(".store/store"),
-      "Expected .store/store folder to no longer exist",
-    );
+      assert(
+        !await exists(".store/store"),
+        "Expected .store/store folder to no longer exist",
+      );
+    },
   });
 }

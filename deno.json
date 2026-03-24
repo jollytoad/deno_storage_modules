@@ -14,19 +14,22 @@
     "erasableSyntaxOnly": true
   },
   "workspace": [
-    "./common",
     "./deno-fs",
     "./deno-kv",
     "./deno-kv-fs",
-    "./extend",
+    "./fns",
     "./main",
     "./no-op",
     "./node-fs",
+    "./test",
+    "./types",
+    "./util",
     "./web-storage"
   ],
   "imports": {
-    "@std/assert": "jsr:@std/assert@^1.0.18",
-    "@std/fs": "jsr:@std/fs@^1.0.22",
+    "@std/assert": "jsr:@std/assert@^1.0.19",
+    "@std/async": "jsr:@std/async@^1.2.0",
+    "@std/fs": "jsr:@std/fs@^1.0.23",
     "@std/path": "jsr:@std/path@^1.1.4",
     "@std/testing": "jsr:@std/testing@^1.0.17"
   }

@@ -6,6 +6,36 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0]
+
+**NOTE: This is major refactor of the library**
+
+### BREAKING Changes
+
+- `@storage/common` has been split into `@storage/fns`, `@storage/test`,
+  `@storage/util`, and `@storage/types`.
+- All public types moved to `@storage/types` and overhauled
+  - `StorageModule` now represents the full set of functions
+  - `StorageProvider` represents the functions an actual storage 'provider' are
+    required to implement and those that are optional
+- `@storage/common/test-storage-module` moved to `@storage/test`
+- `@storage/common/key-util` moved to `@storage/util/key-string`
+- `@storage/extend` has been removed, it's recommended to use storage fns or
+  export a store or delegate store from a module and extend that directly.
+
+### Added
+
+- Support for batching of `setItem` and `removeItem` operations
+- Allow a storage provider to provide own `commit` function for batched
+  operations
+- Default `commit` for batching, uses `pooledMap` to concurrently apply
+  operations
+- `getItems` to support efficient retreival of many items in one operation if
+  the underlying storage provider supports it
+- `@storage/fns`: comprehensive wrapper functions to polyfill those not
+  explicitly implemented in a `StorageProvider`
+- Combined entire test suite into `testStore()` in `@storage/test`
+
 ## [0.10.0]
 
 ### Added

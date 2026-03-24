@@ -1,15 +1,19 @@
 import type {
+  BatchedOperation,
+  BatchOptions,
   ListItemsOptions,
-  MinimalStorageModule,
   SetItemOptions,
   StorageKey,
-  StorageModule,
-} from "@storage/common/types";
+  StorageProvider,
+} from "@storage/types";
 import type { ExposeDenoKv } from "./types.ts";
+import { pooledMap } from "@std/async/pool";
 
-export type { ExposeDenoKv, StorageKey, StorageModule };
+export type { ExposeDenoKv };
 
 const consistency: Deno.KvConsistencyLevel = "eventual";
+const MAX_OPS_PER_ATOMIC = 100;
+const DEFAULT_CONCURRENCY = 10;
 
 ({
   isWritable,
@@ -19,10 +23,11 @@ const consistency: Deno.KvConsistencyLevel = "eventual";
   removeItem,
   listItems,
   clearItems,
+  commit,
   close,
   url,
   getDenoKv,
-}) satisfies MinimalStorageModule & ExposeDenoKv;
+}) satisfies StorageProvider & ExposeDenoKv;
 
 /**
  * Returns the `import.meta.url` of the module.
@@ -113,8 +118,61 @@ export async function clearItems(prefix: StorageKey): Promise<void> {
 }
 
 /**
+ * Commit a batch of operations using Deno KV atomic operations
+ */
+export async function* commit(
+  ops: Iterable<BatchedOperation>,
+  options?: BatchOptions,
+): AsyncIterable<void> {
+  const kv = await getDenoKv([]);
+
+  const batches = asBatches(ops, MAX_OPS_PER_ATOMIC);
+
+  yield* pooledMap(
+    options?.concurrency ?? DEFAULT_CONCURRENCY,
+    batches,
+    async (batch) => {
+      let atomic = kv.atomic();
+
+      for await (const [opName, key, value, options] of batch) {
+        switch (opName) {
+          case "setItem":
+            atomic = atomic.set(key, value, options);
+            break;
+          case "removeItem":
+            atomic = atomic.delete(key);
+            break;
+        }
+      }
+
+      await atomic.commit();
+    },
+  );
+}
+
+async function* asBatches<T>(
+  ops: Iterable<T> | AsyncIterable<T>,
+  batchSize: number,
+): AsyncIterable<T[]> {
+  let batch: T[] = [];
+
+  for await (const op of ops) {
+    batch.push(op);
+    if (batch.length >= batchSize) {
+      yield batch;
+      batch = [];
+    }
+  }
+
+  if (batch.length) {
+    yield batch;
+  }
+}
+
+/**
  * Close all associated resources.
- * This isn't generally required in most situations, it's main use is within test cases.
+ * This isn't generally required in most situations,
+ * it's main use is within test cases.
  */
 export async function close(): Promise<void> {
   const kvs = [...kvCache.values()];

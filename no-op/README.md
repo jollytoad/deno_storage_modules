@@ -1,12 +1,10 @@
-# No-op Storage Module
+# No-op Storage Provider
 
 See [@storage/main](https://jsr.io/@storage/main) for the bigger picture.
 
-This package provides an implementation of the storage module interface.
+This package provides an implementation of the `StorageProvider` interface.
 
 This is a readonly no-op implementation of the storage interface.
-
-Import mapping: `"$store": "jsr:@storage/no-op"`
 
 **Example**
 

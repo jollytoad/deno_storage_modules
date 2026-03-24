@@ -1,17 +1,14 @@
 import type {
-  CompleteStorageModule,
   ListItemsOptions,
   SetItemOptions,
   StorageKey,
-  StorageModule,
-} from "@storage/common/types";
-import { fromStrKey, toStrKey } from "@storage/common/key-utils";
+  StorageProvider,
+} from "@storage/types";
+import { fromStrKey, toStrKey } from "@storage/util/key-string";
 
 import * as fs from "node:fs/promises";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import * as process from "node:process";
-
-export type { StorageKey, StorageModule };
 
 ({
   isWritable,
@@ -25,7 +22,7 @@ export type { StorageKey, StorageModule };
   moveItems,
   close,
   url,
-}) satisfies CompleteStorageModule;
+}) satisfies StorageProvider;
 
 /**
  * Returns the `import.meta.url` of the module.

@@ -1,20 +1,21 @@
 import {
-  open,
+  setup,
+  teardown,
   testIsWritable,
   testListItems,
   testSetItem,
   testUrl,
-} from "@storage/common/test-storage-module";
+} from "@storage/test";
 import * as store from "./mod.ts";
 
 Deno.test("@storage/no-op", async (t) => {
   try {
-    await open(t, store);
+    await setup(t, store);
     await testUrl(t, store, "no-op");
     await testIsWritable(t, store, false);
     await testSetItem(t, store);
     await testListItems(t, store, []);
   } finally {
-    await store.close();
+    await teardown(t, store);
   }
 });

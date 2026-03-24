@@ -2,13 +2,10 @@ import * as kv from "@storage/deno-kv";
 import * as fs from "@storage/deno-fs";
 import type {
   ListItemsOptions,
-  MinimalStorageModule,
   SetItemOptions,
   StorageKey,
-  StorageModule,
-} from "@storage/common/types";
-
-export type { StorageKey, StorageModule };
+  StorageProvider,
+} from "@storage/types";
 
 ({
   isWritable,
@@ -20,7 +17,7 @@ export type { StorageKey, StorageModule };
   clearItems,
   close,
   url,
-}) satisfies MinimalStorageModule;
+}) satisfies StorageProvider;
 
 /**
  * Returns the `import.meta.url` of the module.

@@ -1,0 +1,7 @@
+{
+  "name": "@storage/types",
+  "version": "0.11.0-beta.1",
+  "exports": {
+    ".": "./mod.ts"
+  }
+}

@@ -1,8 +1,8 @@
-# Node.js Filesystem Storage Module
+# Node.js Filesystem Storage Provider
 
 See [@storage/main](https://jsr.io/@storage/main) for the bigger picture.
 
-This package provides an implementation of the storage module interface.
+This package provides an implementation of the `StorageProvider` interface.
 
 This stores values in individual files under a directory hierarchy via
 [Node fs](https://nodejs.org/docs/latest/api/fs.html) calls. By default this is
@@ -13,8 +13,6 @@ Each level of the key becomes a directory up to the last segment which becomes a
 JSON file.
 
 eg: `["one", "two", "three"]` -> `.store/one/two/three.json`
-
-Import mapping: `"$store": "jsr:@storage/node-fs"`
 
 **Example**
 

@@ -1,12 +1,10 @@
-# Deno KV Storage Module
+# Deno KV Storage Provider
 
 See [@storage/main](https://jsr.io/@storage/main) for the bigger picture.
 
-This package provides an implementation of the storage module interface.
+This package provides an implementation of the `StorageProvider` interface.
 
 Uses the [Deno KV](https://deno.land/manual/runtime/kv) API for storage.
-
-Import mapping: `"$store": "jsr:@storage/deno-kv"`
 
 **Example**
 

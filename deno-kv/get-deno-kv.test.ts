@@ -3,6 +3,7 @@ import { getDenoKv } from "./get-deno-kv.ts";
 import * as denoKvStore from "./mod.ts";
 import * as denoFsStore from "@storage/deno-fs";
 import * as store from "@storage/main";
+import { close } from "@storage/fns/close";
 
 Deno.test("getDenoKv() returns Deno.Kv when given @storage/deno-kv directly", async () => {
   try {
@@ -10,7 +11,7 @@ Deno.test("getDenoKv() returns Deno.Kv when given @storage/deno-kv directly", as
 
     assertInstanceOf(kv, Deno.Kv);
   } finally {
-    await denoKvStore.close();
+    await close(denoKvStore);
   }
 });
 
@@ -20,7 +21,7 @@ Deno.test("getDenoKv() returns undefined when given @storage/deno-fs directly", 
 
     assertStrictEquals(kv, undefined);
   } finally {
-    await denoFsStore.close();
+    await close(denoFsStore);
   }
 });
 
@@ -32,7 +33,7 @@ Deno.test("getDenoKv() returns Deno.Kv when given the delegate store backed by @
 
     assertInstanceOf(kv, Deno.Kv);
   } finally {
-    await store.close();
+    await close(store);
   }
 });
 
@@ -44,6 +45,6 @@ Deno.test("getDenoKv() returns Deno.Kv when given the delegate store backed by @
 
     assertStrictEquals(kv, undefined);
   } finally {
-    await store.close();
+    await close(store);
   }
 });

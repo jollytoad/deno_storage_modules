@@ -1,8 +1,0 @@
-{
-  "name": "@storage/extend",
-  "version": "0.10.0",
-  "exports": {
-    ".": "./mod.ts",
-    "./types": "./types.ts"
-  }
-}

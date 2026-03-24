@@ -1,185 +1,45 @@
 import type {
-  Awaitable,
-  CompleteStorageModule,
+  BatchedFn,
+  BatchedOperation,
+  BatchOptions,
   DelegatedStore,
-  ListItemsOptions,
-  SetItemOptions,
   StorageKey,
   StorageModule,
-} from "@storage/common/types";
-import { copyItems as copyItemsDefault } from "@storage/common/copy-items";
-import { moveItems as moveItemsDefault } from "@storage/common/move-items";
+  StorageProvider,
+} from "@storage/types";
+import { batch as commonBatch } from "@storage/fns/batch";
+import { commit as commonCommit } from "@storage/fns/commit";
+import * as provider from "./provider.ts";
+import * as delegate from "./delegate.ts";
 
 export type { DelegatedStore, StorageKey, StorageModule };
 
 ({
-  isWritable,
-  hasItem,
-  getItem,
-  setItem,
-  removeItem,
-  listItems,
-  clearItems,
-  copyItems,
-  moveItems,
-  close,
-  url,
-  setStore,
-  getStore,
-}) satisfies CompleteStorageModule & DelegatedStore;
+  ...provider,
+  ...delegate,
+  batch,
+  commit,
+}) satisfies StorageModule & StorageProvider & DelegatedStore;
 
-let defaultStore: Promise<StorageModule> | undefined;
-let stores: Map<string, Promise<StorageModule>> | undefined;
+export * from "./provider.ts";
+export * from "./delegate.ts";
 
 /**
- * Set the storage module to which all function calls are delegated
- *
- * @param storageModule may be the store, promise of the store, or undefined to remove any delegate store
- * @param prefix the given storage module will only apply to keys with this prefix, if this is not supplied
- *   then the given storage module is set as the default/fallback store
+ * Start batching operations within the given callback fn.
  */
-export function setStore(
-  storageModule?: Awaitable<StorageModule>,
-  prefix?: string,
-) {
-  if (prefix === undefined) {
-    defaultStore = storageModule ? Promise.resolve(storageModule) : undefined;
-  } else if (storageModule) {
-    stores ??= new Map();
-    stores.set(prefix, Promise.resolve(storageModule));
-  } else {
-    stores?.delete(prefix);
-  }
+export function batch<T>(
+  fn: BatchedFn<T>,
+  options?: BatchOptions,
+): Promise<T> {
+  return commonBatch<T>(provider, fn, options);
 }
 
 /**
- * Get the delegate storage module previously set via `setStore`,
- * if one has not been set it will attempt to dynamically import the module declared in
- * the `STORAGE_MODULE` environment variable.
- *
- * @returns the promise of the store to which all operations are delegated
- * @throws if no store or env var has been set, or if dynamic import fails
+ * Commit the current batch.
  */
-export async function getStore(
-  key?: StorageKey | string,
-): Promise<StorageModule> {
-  if (key && key.length) {
-    const prefix = typeof key === "string" ? key : String(key[0]);
-    if (prefix) {
-      const store = stores?.get(prefix);
-      if (store) {
-        return store;
-      }
-    }
-  }
-  if (!defaultStore) {
-    defaultStore = (await import("./_from_env.ts")).fromEnv();
-  }
-  return await defaultStore;
-}
-
-/**
- * Returns the `url()` of the delegated storage module.
- */
-export async function url(key?: StorageKey | string): Promise<string> {
-  return (await getStore(key)).url();
-}
-
-/**
- * Check whether the delegated storage is writable in general, or at or below a particular key.
- * There still may be some sub-keys that differ.
- */
-export async function isWritable(key: StorageKey = []): Promise<boolean> {
-  return (await getStore(key)).isWritable(key);
-}
-
-/**
- * Determine whether a value is set for the given key in the delegated storage.
- */
-export async function hasItem(key: StorageKey): Promise<boolean> {
-  return (await getStore(key)).hasItem(key);
-}
-
-/**
- * Get a value for the given key from the delegated storage.
- */
-export async function getItem<T>(key: StorageKey): Promise<T | undefined> {
-  return (await getStore(key)).getItem(key) as Promise<T | undefined>;
-}
-
-/**
- * Set a value for the given key in the delegated storage.
- */
-export async function setItem<T>(
-  key: StorageKey,
-  value: T,
-  options?: SetItemOptions,
-): Promise<void> {
-  return (await getStore(key)).setItem(key, value, options);
-}
-
-/**
- * Remove the value with the given key from the delegated storage.
- */
-export async function removeItem(key: StorageKey): Promise<void> {
-  return (await getStore(key)).removeItem(key);
-}
-
-/**
- * List all items beneath the given key prefix in the delegated storage.
- * At present, guaranteed ordering and reverse support is optional, and
- * dependent on the abilities of the delegated storage.
- */
-export async function* listItems<T>(
-  prefix: StorageKey = [],
-  options?: ListItemsOptions,
-): AsyncIterable<[StorageKey, T]> {
-  yield* (await getStore(prefix)).listItems(prefix, options) as AsyncIterable<
-    [StorageKey, T]
-  >;
-}
-
-/**
- * Delete item and sub items recursively from the delegated storage and clean up.
- */
-export async function clearItems(prefix: StorageKey): Promise<void> {
-  return (await getStore(prefix)).clearItems(prefix);
-}
-
-/**
- * Copy an item and all sub items to a new key.
- * This will not preserve the expiry time of the item at the new key.
- */
-export async function copyItems(
-  fromPrefix: StorageKey,
-  toPrefix: StorageKey,
-): Promise<void> {
-  const stores = await Promise.all([getStore(fromPrefix), getStore(toPrefix)]);
-  await copyItemsDefault(fromPrefix, toPrefix, ...stores);
-}
-
-/**
- * Move an item and all sub items to a new key.
- * This will not preserve the expiry time of the item at the new key.
- */
-export async function moveItems(
-  fromPrefix: StorageKey,
-  toPrefix: StorageKey,
-): Promise<void> {
-  const stores = await Promise.all([getStore(fromPrefix), getStore(toPrefix)]);
-  await moveItemsDefault(fromPrefix, toPrefix, ...stores);
-}
-
-/**
- * Close all associated resources in the delegated storage.
- * This isn't generally required in most situations, it's main use is within test cases.
- */
-export async function close(): Promise<void> {
-  const pending = [defaultStore, ...stores?.values() ?? []].map(async (store) =>
-    (await store)?.close()
-  );
-  defaultStore = undefined;
-  stores?.clear();
-  stores = undefined;
-  await Promise.allSettled(pending);
+export function commit(
+  ops: Iterable<BatchedOperation>,
+  options?: BatchOptions,
+): AsyncIterable<void> {
+  return commonCommit(provider, ops, options);
 }

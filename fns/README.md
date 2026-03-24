@@ -1,21 +1,10 @@
-# Common types and utilities for Pluggable Storage Modules
+# Storage functions for Pluggable Storage Modules
 
 See [@storage/main](https://jsr.io/@storage/main) for the bigger picture.
 
-This package provides the storage module interface definition and some reusable
-utility function for use by implementations.
-
-- [the interface](./types.ts)
-- [key conversion utils](./key-utils.ts)
-- [test utils](./test-storage-module.ts)
-
-## StorageModule
-
-If you need to reference the interface for a storage module:
-
-```ts
-import type { StorageModule } from "jsr:@storage/common/types";
-```
+This package provides the complete set of Storage functions that delegate to a
+given Storage provider, filling in any functionality that the provider doesn't
+natively implement.
 
 ## Test Utils
 
@@ -54,6 +43,7 @@ Deno.test("store-my-custom-storage", async (t) => {
     await testClearItems(t, store);
     await testOrdering(t, store);
   } finally {
+    // This is optional, depending on your store
     await store.close();
   }
 });

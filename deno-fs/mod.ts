@@ -9,15 +9,12 @@ import { walk } from "@std/fs/walk";
 import { copy } from "@std/fs/copy";
 import { move } from "@std/fs/move";
 import type {
-  CompleteStorageModule,
   ListItemsOptions,
   SetItemOptions,
   StorageKey,
-  StorageModule,
-} from "@storage/common/types";
-import { fromStrKey, toStrKey } from "@storage/common/key-utils";
-
-export type { StorageKey, StorageModule };
+  StorageProvider,
+} from "@storage/types";
+import { fromStrKey, toStrKey } from "@storage/util/key-string";
 
 ({
   isWritable,
@@ -29,9 +26,8 @@ export type { StorageKey, StorageModule };
   clearItems,
   copyItems,
   moveItems,
-  close,
   url,
-}) satisfies CompleteStorageModule;
+}) satisfies StorageProvider;
 
 /**
  * Returns the `import.meta.url` of the module.
@@ -179,14 +175,6 @@ export async function moveItems<T>(
 ): Promise<void> {
   await move(filepath(fromPrefix), filepath(toPrefix), { overwrite: true });
   await move(dirpath(fromPrefix), dirpath(toPrefix), { overwrite: true });
-}
-
-/**
- * Close all associated resources.
- * This isn't generally required in most situations, it's main use is within test cases.
- */
-export function close(): Promise<void> {
-  return Promise.resolve();
 }
 
 function filepath(key: StorageKey) {

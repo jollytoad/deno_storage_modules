@@ -4,7 +4,7 @@ This package provides a pluggable hierarchical key -> value storage mechanism.
 
 Supported underlying mechanisms:
 
-- Filesystem (via Deno functions)
+- Filesystem (via Deno, or Node functions)
 - Web Storage (`localStorage`)
 - Deno KV
 
@@ -12,8 +12,13 @@ You can use this particular package to allow dynamic switching of the
 implementation, either via function call at the start of your app or via a
 environment variable.
 
-Alternatively you can use one of the implementation packages directly, or
-aliased via your import map.
+Alternatively you can use one of the `StorageProvider` modules directly, or
+aliased via your import map. Note that not all providers implement all
+operations...
+
+Or you can use the functions in `@storage/fns`, to which you can pass the
+`StorageProvider` module. These provide all operations, filling any features not
+provided natively by a provider.
 
 ## Via import map
 
@@ -96,6 +101,17 @@ and then use the functions from `jsr:@storage/main`:
 import { setItem } from "jsr:@storage/main";
 
 await setItem(["store", "hello"], "world");
+```
+
+## Via storage functions
+
+Or use the storage functions:
+
+```ts
+import * as store from "jsr:@storage/deno-kv";
+import { setItem } from "jsr:@storage/fns";
+
+await setItem(store, ["store", "hello"], "world");
 ```
 
 ## Why a Module and not a Class?
@@ -222,9 +238,9 @@ your app. This implementation does nothing.
 
 ### Bring your own
 
-If these don't fulfil your needs then you can implement your own storage module
-based on the
-[StorageModule interface](https://jsr.io/@storage/common/doc/types/~/StorageModule),
+If these don't fulfil your needs then you can implement your own module based on
+the
+[StorageProvider interface](https://jsr.io/@storage/types/doc/types/~/StorageProvider),
 and switch to it.
 
 See the existing implementations for inspiration...

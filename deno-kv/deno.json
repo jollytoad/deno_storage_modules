@@ -1,9 +1,12 @@
 {
   "name": "@storage/deno-kv",
-  "version": "0.10.0",
+  "version": "0.11.0-beta.1",
   "exports": {
     ".": "./mod.ts",
     "./get-deno-kv": "./get-deno-kv.ts",
     "./types": "./types.ts"
+  },
+  "imports": {
+    "@std/async": "jsr:@std/async@^1.2.0"
   }
 }

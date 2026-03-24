@@ -1,0 +1,20 @@
+{
+  "name": "@storage/fns",
+  "version": "0.11.0-beta.1",
+  "exports": {
+    ".": "./mod.ts",
+    "./batch": "./batch.ts",
+    "./clear-items": "./clear-items.ts",
+    "./close": "./close.ts",
+    "./commit": "./commit.ts",
+    "./copy-items": "./copy-items.ts",
+    "./get-item": "./get-item.ts",
+    "./get-items": "./get-items.ts",
+    "./has-item": "./has-item.ts",
+    "./is-writable": "./is-writable.ts",
+    "./list": "./list.ts",
+    "./move-items": "./move-items.ts",
+    "./remove-item": "./remove-item.ts",
+    "./set-item": "./set-item.ts"
+  }
+}

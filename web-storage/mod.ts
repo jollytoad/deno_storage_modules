@@ -1,13 +1,10 @@
-import { fromStrKey, toStrKey } from "@storage/common/key-utils";
+import { fromStrKey, toStrKey } from "@storage/util/key-string";
 import type {
   ListItemsOptions,
-  MinimalStorageModule,
   SetItemOptions,
   StorageKey,
-  StorageModule,
-} from "@storage/common/types";
-
-export type { StorageKey, StorageModule };
+  StorageProvider,
+} from "@storage/types";
 
 ({
   isWritable,
@@ -19,7 +16,7 @@ export type { StorageKey, StorageModule };
   clearItems,
   close,
   url,
-}) satisfies MinimalStorageModule;
+}) satisfies StorageProvider;
 
 const SEP = "/";
 

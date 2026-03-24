@@ -1,8 +1,8 @@
-# Deno Filesystem Storage Module
+# Deno Filesystem Storage Provider
 
 See [@storage/main](https://jsr.io/@storage/main) for the bigger picture.
 
-This package provides an implementation of the storage module interface.
+This package provides an implementation of the `StorageProvider` interface.
 
 This stores values in individual files under a directory hierarchy via
 [Deno fs](https://deno.land/api?s=Deno.readTextFile) calls. By default this is

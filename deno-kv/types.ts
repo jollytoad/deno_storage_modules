@@ -1,4 +1,4 @@
-import type { StorageKey } from "@storage/common/types";
+import type { StorageKey } from "@storage/types";
 
 /**
  * Additional functions for a store that is backed by `Deno.Kv`
