@@ -1,6 +1,6 @@
 {
   "name": "@storage/node-fs",
-  "version": "0.11.0-beta.3",
+  "version": "0.11.0",
   "exports": {
     ".": "./mod.ts"
   }
