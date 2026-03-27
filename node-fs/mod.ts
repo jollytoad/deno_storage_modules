@@ -20,7 +20,6 @@ import * as process from "node:process";
   clearItems,
   copyItems,
   moveItems,
-  close,
   url,
 }) satisfies StorageProvider;
 
@@ -224,14 +223,6 @@ export async function moveItems<T>(
   await fs.rename(filepath(fromPrefix), filepath(toPrefix));
   await fs.rm(dirpath(toPrefix), { recursive: true });
   await fs.rename(dirpath(fromPrefix), dirpath(toPrefix));
-}
-
-/**
- * Close all associated resources.
- * This isn't generally required in most situations, it's main use is within test cases.
- */
-export function close(): Promise<void> {
-  return Promise.resolve();
 }
 
 function filepath(key: StorageKey) {

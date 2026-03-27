@@ -14,7 +14,6 @@ import type {
   removeItem,
   listItems,
   clearItems,
-  close,
   url,
 }) satisfies StorageProvider;
 
@@ -120,14 +119,6 @@ export function clearItems(keyPrefix: StorageKey): Promise<void> {
 
   queued.forEach((key) => localStorage.removeItem(key));
 
-  return Promise.resolve();
-}
-
-/**
- * Close all associated resources.
- * This isn't generally required in most situations, it's main use is within test cases.
- */
-export function close(): Promise<void> {
   return Promise.resolve();
 }
 

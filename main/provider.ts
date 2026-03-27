@@ -25,7 +25,6 @@ import { defaultCommit } from "@storage/util/default-commit";
   copyItems,
   moveItems,
   getItems,
-  close,
 }) satisfies StorageProvider;
 
 export { url };

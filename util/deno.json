@@ -1,6 +1,6 @@
 {
   "name": "@storage/util",
-  "version": "0.11.0-beta.2",
+  "version": "0.11.0-beta.3",
   "exports": {
     "./default-commit": "./default-commit.ts",
     "./key-string": "./key-string.ts"
