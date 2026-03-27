@@ -1,12 +1,11 @@
 {
   "name": "@storage/fns",
-  "version": "0.11.0-beta.1",
+  "version": "0.11.0-beta.2",
   "exports": {
     ".": "./mod.ts",
     "./batch": "./batch.ts",
     "./clear-items": "./clear-items.ts",
     "./close": "./close.ts",
-    "./commit": "./commit.ts",
     "./copy-items": "./copy-items.ts",
     "./get-item": "./get-item.ts",
     "./get-items": "./get-items.ts",

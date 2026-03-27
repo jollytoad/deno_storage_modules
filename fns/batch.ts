@@ -5,7 +5,6 @@ import type {
   StorageKey,
   StorageProvider,
 } from "@storage/types";
-import { commit as doCommit } from "./commit.ts";
 import {
   type AsyncContextVariable,
   createAsyncContextVariable,
@@ -57,7 +56,14 @@ export async function batch<T>(
     if (state?.ops?.size) {
       try {
         state.inCommit = true;
-        const result = doCommit(store, state.ops.values(), options);
+
+        const result = store.commit
+          ? store.commit(state.ops.values(), options)
+          : (await import("@storage/util/default-commit")).defaultCommit(
+            store,
+            state.ops.values(),
+            options,
+          );
 
         for await (const _ of result) {
           // do nothing

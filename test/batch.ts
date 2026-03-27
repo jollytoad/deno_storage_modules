@@ -1,6 +1,6 @@
 import { assertArrayIncludes, assertEquals } from "@std/assert";
 import { assertSpyCalls, spy } from "@std/testing/mock";
-import type { StorageKey, StorageProvider } from "@storage/types";
+import type { BatchOptions, StorageKey, StorageProvider } from "@storage/types";
 import { TEST_ITEMS, TEST_PREFIX } from "./fixtures.ts";
 import { canSetItem, setItem } from "@storage/fns/set-item";
 import { canRemoveItem, removeItem } from "@storage/fns/remove-item";
@@ -13,12 +13,13 @@ import { canListItems, listItems } from "@storage/fns/list";
 export async function testBatch(
   t: Deno.TestContext,
   store: StorageProvider,
+  batchOptions?: BatchOptions,
   items: Iterable<[StorageKey, unknown]> = TEST_ITEMS,
   prefix: StorageKey = TEST_PREFIX,
 ) {
   await t.step({
     ignore: !canSetItem(store) || !canRemoveItem(store),
-    name: "batch",
+    name: `batch (atomic: ${batchOptions?.atomic})`,
     fn: async (t) => {
       const spyStore = {
         ...store,
@@ -34,7 +35,7 @@ export async function testBatch(
           }
 
           assertSpyCalls(spyStore.setItem, 0);
-        });
+        }, batchOptions);
 
         if (store.commit) {
           await t.step("store.commit called", () => {

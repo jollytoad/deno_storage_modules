@@ -1,4 +1,4 @@
-import type { StorageProvider } from "@storage/types";
+import type { BatchOptions, StorageProvider } from "@storage/types";
 import { setup, teardown } from "./setup-teardown.ts";
 import { testBatch } from "./batch.ts";
 import { testClearItems } from "./clear-items.ts";
@@ -12,6 +12,7 @@ import { testOrdering } from "./ordering.ts";
 import { testRemoveItem } from "./remove-item.ts";
 import { testSetItem } from "./set-item.ts";
 import { testUrl } from "./url.ts";
+import { testGetItems } from "./get-items.ts";
 
 /**
  * Configuration for {@linkcode testStore}
@@ -31,6 +32,11 @@ export interface TestStoreOptions {
    * The store is expected to support ordering by key from listItems
    */
   orderedByKey?: boolean;
+
+  /**
+   * The atomic options to test for batch testing
+   */
+  batchAtomic?: BatchOptions["atomic"][];
 
   /**
    * Additional tests to run before teardown
@@ -67,7 +73,9 @@ export async function testStore(
       await testOrdering(t, store);
     }
 
-    await testBatch(t, store);
+    for (const atomic of options?.batchAtomic ?? [undefined]) {
+      await testBatch(t, store, { atomic });
+    }
 
     if (extraTests) {
       for (const test of extraTests) {
@@ -89,6 +97,7 @@ export async function testOperations(
   await testSetItem(t, store);
   await testHasItem(t, store);
   await testGetItem(t, store);
+  await testGetItems(t, store);
   await testListItems(t, store);
   await testRemoveItem(t, store);
   await testClearItems(t, store);

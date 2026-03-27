@@ -1,7 +1,6 @@
 export * from "./batch.ts";
 export * from "./clear-items.ts";
 export * from "./close.ts";
-export * from "./commit.ts";
 export * from "./copy-items.ts";
 export * from "./get-item.ts";
 export * from "./get-items.ts";

@@ -1,4 +1,6 @@
 import type {
+  BatchedOperation,
+  BatchOptions,
   GetItemsOptions,
   ListItemsOptions,
   SetItemOptions,
@@ -7,6 +9,7 @@ import type {
 } from "@storage/types";
 import * as fn from "@storage/fns";
 import { getStore, url } from "./delegate.ts";
+import { defaultCommit } from "@storage/util/default-commit";
 
 ({
   isWritable,
@@ -170,5 +173,33 @@ async function* groupKeysByStore(
 
   for (const [store, keySet] of keysPerStore) {
     yield [store, keySet.values()];
+  }
+}
+
+/**
+ * Commit the current batch via the `commit` fns of the
+ * individual delegate storage providers.
+ */
+export async function* commit(
+  ops: Iterable<BatchedOperation>,
+  options?: BatchOptions,
+): AsyncIterable<void> {
+  // Group ops by deletegated storage provider
+  const groupedOps = new Map<StorageProvider, BatchedOperation[]>();
+  for (const op of ops) {
+    const provider = await getStore(op[1]);
+    let providerOps = groupedOps.get(provider);
+    if (!providerOps) {
+      providerOps = [];
+      groupedOps.set(provider, providerOps);
+    }
+    providerOps.push(op);
+  }
+
+  // Perform commits for individual storage providers
+  for (const [provider, ops] of groupedOps) {
+    yield* provider.commit
+      ? provider.commit(ops, options)
+      : defaultCommit(provider, ops, options);
   }
 }

@@ -11,7 +11,7 @@ export async function testUrl(
 ) {
   await t.step(`url contains "${includes}"`, async () => {
     const actualUrl = await url();
-    console.log("StorageModule URL:", actualUrl);
+    console.debug("StorageProvider URL:", actualUrl);
     assertStringIncludes(actualUrl, includes);
   });
 }
@@ -30,7 +30,7 @@ export async function testUrlForPrefix(
     `url contains "${includes}" for keys prefixed with "${prefix}"`,
     async () => {
       const actualUrl = await url(prefix);
-      console.log("StorageModule URL:", actualUrl);
+      console.debug(`StorageProvider (${prefix}) URL:`, actualUrl);
       assertStringIncludes(actualUrl, includes);
     },
   );

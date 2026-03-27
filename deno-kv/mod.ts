@@ -8,6 +8,7 @@ import type {
 } from "@storage/types";
 import type { ExposeDenoKv } from "./types.ts";
 import { pooledMap } from "@std/async/pool";
+import { defaultCommit } from "@storage/util/default-commit";
 
 export type { ExposeDenoKv };
 
@@ -124,30 +125,34 @@ export async function* commit(
   ops: Iterable<BatchedOperation>,
   options?: BatchOptions,
 ): AsyncIterable<void> {
-  const kv = await getDenoKv([]);
+  if (options?.atomic === "preferred") {
+    const kv = await getDenoKv([]);
 
-  const batches = asBatches(ops, MAX_OPS_PER_ATOMIC);
+    const batches = asBatches(ops, MAX_OPS_PER_ATOMIC);
 
-  yield* pooledMap(
-    options?.concurrency ?? DEFAULT_CONCURRENCY,
-    batches,
-    async (batch) => {
-      let atomic = kv.atomic();
+    yield* pooledMap(
+      options?.concurrency ?? DEFAULT_CONCURRENCY,
+      batches,
+      async (batch) => {
+        let atomic = kv.atomic();
 
-      for await (const [opName, key, value, options] of batch) {
-        switch (opName) {
-          case "setItem":
-            atomic = atomic.set(key, value, options);
-            break;
-          case "removeItem":
-            atomic = atomic.delete(key);
-            break;
+        for await (const [opName, key, value, options] of batch) {
+          switch (opName) {
+            case "setItem":
+              atomic = atomic.set(key, value, options);
+              break;
+            case "removeItem":
+              atomic = atomic.delete(key);
+              break;
+          }
         }
-      }
 
-      await atomic.commit();
-    },
-  );
+        await atomic.commit();
+      },
+    );
+  } else {
+    yield* defaultCommit({ setItem, removeItem }, ops, options);
+  }
 }
 
 async function* asBatches<T>(
