@@ -17,7 +17,7 @@ export async function testHasItem(
     name: "hasItem",
     fn: async () => {
       for (const key of keys) {
-        assert(await hasItem(store, key));
+        assert(await hasItem(store, [...key]));
       }
     },
   });

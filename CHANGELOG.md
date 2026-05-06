@@ -24,6 +24,10 @@ and this project adheres to
 - `@storage/util`, `asyncFilter` and `uniqueKeyFilter` utility functions to aid
   implementations with key deduplication.
 
+### Fixed
+
+- `@storage/test` ensure that keys are cloned rather than passed by reference
+
 ## [0.11.0]
 
 **NOTE: This is major refactor of the library**

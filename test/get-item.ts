@@ -17,7 +17,7 @@ export async function testGetItem(
     name: "getItem",
     fn: async () => {
       for (const [key, value] of items) {
-        assertEquals(await getItem(store, key), value);
+        assertEquals(await getItem(store, [...key]), value);
       }
     },
   });

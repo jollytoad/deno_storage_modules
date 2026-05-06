@@ -47,7 +47,7 @@ export async function testListItems(
     ignore: !canListKeys(store),
     name: "listKeys",
     fn: async () => {
-      const keys = Array.from(items).map(([key, _value]) => key);
+      const keys = Array.from(items).map(([key, _value]) => [...key]);
       for await (const item of listKeys(store, prefix)) {
         assertArrayIncludes(keys, [item]);
       }

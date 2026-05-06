@@ -22,13 +22,13 @@ export async function testRemoveItem(
     name: "removeItem",
     fn: async () => {
       for (const key of keys) {
-        await removeItem(store, key);
+        await removeItem(store, [...key]);
       }
 
       let count = 0;
 
       for (const key of keys) {
-        if (await hasItem(store, key)) {
+        if (await hasItem(store, [...key])) {
           count++;
         }
       }

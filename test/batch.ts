@@ -31,7 +31,7 @@ export async function testBatch(
       await t.step("setItem", async (t) => {
         await batch(spyStore, async () => {
           for (const [key, value] of items) {
-            await setItem(spyStore, key, value);
+            await setItem(spyStore, [...key], value);
           }
 
           assertSpyCalls(spyStore.setItem, 0);
@@ -62,7 +62,7 @@ export async function testBatch(
       await t.step("removeItem", async (t) => {
         await batch(spyStore, async () => {
           for (const [key] of items) {
-            await removeItem(spyStore, key);
+            await removeItem(spyStore, [...key]);
           }
 
           assertSpyCalls(spyStore.removeItem, 0);

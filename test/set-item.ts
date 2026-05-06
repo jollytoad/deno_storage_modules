@@ -17,7 +17,7 @@ export async function testSetItem(
       // TODO: spy
 
       for (const [key, value] of items) {
-        await setItem(store, key, value);
+        await setItem(store, [...key], value);
       }
     },
   });

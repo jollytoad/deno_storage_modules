@@ -17,7 +17,7 @@ export async function testGetItems(
     ignore: !canGetItems(store),
     name: "getItems",
     fn: async () => {
-      const keys = Array.from(items).map(([key, _value]) => key);
+      const keys = keysOf(items);
       const foundItems = await Array.fromAsync(getItems(store, keys));
       const expectedItems = Array.from(items);
       assertArrayIncludes(foundItems, expectedItems);
@@ -27,14 +27,17 @@ export async function testGetItems(
 
   await t.step({
     ignore: !canGetItems(store),
-    name: "getItems - keys are deduplicated",
+    name: "getItems - duplicate keys are ignored",
     fn: async () => {
-      const keys = Array.from(items).map(([key, _value]) => key);
-      const duplicateKeys = [...keys, ...keys];
-      const foundItems = await Array.fromAsync(getItems(store, duplicateKeys));
+      const keys = [...keysOf(items), ...keysOf(items)];
+      const foundItems = await Array.fromAsync(getItems(store, keys));
       const expectedItems = Array.from(items);
       assertArrayIncludes(foundItems, expectedItems);
       assertEquals(foundItems.length, expectedItems.length);
     },
   });
+}
+
+function keysOf(items: Iterable<[StorageKey, unknown]>): StorageKey[] {
+  return Array.from(items).map(([key, _value]) => [...key]);
 }
