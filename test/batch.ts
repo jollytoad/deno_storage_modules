@@ -6,6 +6,16 @@ import { canSetItem, setItem } from "@storage/fns/set-item";
 import { canRemoveItem, removeItem } from "@storage/fns/remove-item";
 import { batch } from "@storage/fns/batch";
 import { canListItems, listItems } from "@storage/fns/list";
+import { canGetItem, getItem } from "@storage/fns/get-item";
+
+function createSpyStore(store: StorageProvider) {
+  return {
+    ...store,
+    setItem: spy(store.setItem!),
+    removeItem: spy(store.removeItem!),
+    commit: store.commit ? spy(store.commit) : undefined,
+  };
+}
 
 /**
  * Test the {@linkcode batch} function of the given storage module.
@@ -21,14 +31,9 @@ export async function testBatch(
     ignore: !canSetItem(store) || !canRemoveItem(store),
     name: `batch (atomic: ${batchOptions?.atomic})`,
     fn: async (t) => {
-      const spyStore = {
-        ...store,
-        setItem: spy(store.setItem!),
-        removeItem: spy(store.removeItem!),
-        commit: store.commit ? spy(store.commit) : undefined,
-      };
-
       await t.step("setItem", async (t) => {
+        const spyStore = createSpyStore(store);
+
         await batch(spyStore, async () => {
           for (const [key, value] of items) {
             await setItem(spyStore, [...key], value);
@@ -60,17 +65,19 @@ export async function testBatch(
       });
 
       await t.step("removeItem", async (t) => {
+        const spyStore = createSpyStore(store);
+
         await batch(spyStore, async () => {
           for (const [key] of items) {
             await removeItem(spyStore, [...key]);
           }
 
           assertSpyCalls(spyStore.removeItem, 0);
-        });
+        }, batchOptions);
 
         if (store.commit) {
           await t.step("store.commit called", () => {
-            assertSpyCalls(spyStore.commit!, 2);
+            assertSpyCalls(spyStore.commit!, 1);
           });
         } else {
           await t.step("store.removeItem called by default commit", () => {
@@ -85,6 +92,52 @@ export async function testBatch(
             const list = await Array.fromAsync(listItems(store, prefix));
             assertEquals(list.length, 0, "expected no items to be found");
           },
+        });
+      });
+
+      await t.step("later ops override prior ops with same key", async (t) => {
+        const spyStore = createSpyStore(store);
+
+        const key = [...TEST_PREFIX, "batch", "dupe"];
+
+        await t.step("setup", async () => {
+          await setItem(store, [...key], "one");
+        });
+
+        await batch(spyStore, async () => {
+          await removeItem(spyStore, [...key]);
+          await setItem(spyStore, [...key], "two");
+          await removeItem(spyStore, [...key]);
+          await setItem(spyStore, [...key], "three");
+        }, batchOptions);
+
+        if (store.commit) {
+          await t.step("store.commit called", () => {
+            assertSpyCalls(spyStore.commit!, 1);
+          });
+        } else {
+          await t.step("store.setItem called once by default commit", () => {
+            assertSpyCalls(spyStore.setItem, 1);
+          });
+          await t.step(
+            "store.removeItem never called by default commit",
+            () => {
+              assertSpyCalls(spyStore.removeItem, 0);
+            },
+          );
+        }
+
+        await t.step({
+          ignore: !canGetItem(store),
+          name: "item was set as expected",
+          fn: async () => {
+            const value = await getItem<string>(store, [...key]);
+            assertEquals(value, "three");
+          },
+        });
+
+        await t.step("clean up", async () => {
+          await removeItem(store, [...key]);
         });
       });
     },

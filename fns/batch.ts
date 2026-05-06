@@ -2,7 +2,6 @@ import type {
   BatchedFn,
   BatchedOperation,
   BatchOptions,
-  StorageKey,
   StorageProvider,
 } from "@storage/types";
 import {
@@ -11,7 +10,7 @@ import {
 } from "./_async_context.ts";
 
 type BatchState = {
-  ops: Map<StorageKey, BatchedOperation>;
+  ops: Map<string, BatchedOperation>;
   inCommit: boolean;
 };
 
@@ -106,9 +105,10 @@ export function inCommit(): boolean {
 
 /**
  * Add an operation to the current batch.
+ * The operation will override a previously batched operation with the same key.
  *
  * @param op the operation
  */
 export function addOp(op: BatchedOperation): void {
-  context?.get()?.ops.set(op[1], op);
+  context?.get()?.ops.set(JSON.stringify(op[1]), op);
 }

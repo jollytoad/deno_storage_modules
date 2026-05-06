@@ -18,6 +18,7 @@ and this project adheres to
 - `@storage/fns` `getItems` performs key duplications for the default `getItem`
   based implementation.
 - added test for deduplication in `getItems`
+- added test for `batch` deduplication of ops
 
 ### Added
 
@@ -27,6 +28,7 @@ and this project adheres to
 ### Fixed
 
 - `@storage/test` ensure that keys are cloned rather than passed by reference
+- `@storage/fns` `batch` now correctly overrides previous ops with the same key
 
 ## [0.11.0]
 
