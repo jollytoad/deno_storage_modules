@@ -23,7 +23,7 @@ export function listItems<T>(
 }
 
 /**
- * Can `listItems` by used on the store?
+ * Can `listItems` be used on the store?
  */
 export function canListItems(store: StorageProvider): boolean {
   return !!store.listItems || (canListKeys(store) && canGetItems(store));
@@ -49,7 +49,7 @@ export function listValues<T>(
 }
 
 /**
- * Can `listValues` by used on the store?
+ * Can `listValues` be used on the store?
  */
 export function canListValues(store: StorageProvider): boolean {
   return !!store.listValues || canListItems(store);
@@ -73,7 +73,7 @@ export function listKeys(
 }
 
 /**
- * Can `listKeys` by used on the store?
+ * Can `listKeys` be used on the store?
  */
 export function canListKeys(store: StorageProvider): boolean {
   return !!store.listKeys || !!store.listItems;

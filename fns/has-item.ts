@@ -18,7 +18,7 @@ export async function hasItem(
 }
 
 /**
- * Can `hasItems` by used on the store?
+ * Can `hasItem` be used on the store?
  */
 export function canHasItem(store: StorageProvider): boolean {
   return !!store.hasItem || !!store.getItem;

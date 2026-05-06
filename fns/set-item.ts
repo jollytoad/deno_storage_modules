@@ -26,7 +26,7 @@ export function setItem<T>(
 }
 
 /**
- * Can `setItem` by used on the store?
+ * Can `setItem` be used on the store?
  */
 export function canSetItem(store: StorageProvider): boolean {
   return !!store.setItem;

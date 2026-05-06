@@ -32,7 +32,7 @@ export async function copyItems(
 }
 
 /**
- * Can `copyItems` by used on the store?
+ * Can `copyItems` be used on the store?
  */
 export function canCopyItems(
   fromStore: StorageProvider,

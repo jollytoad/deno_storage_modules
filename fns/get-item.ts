@@ -16,7 +16,7 @@ export function getItem<T>(
 }
 
 /**
- * Can `getItem` by used on the store?
+ * Can `getItem` be used on the store?
  */
 export function canGetItem(store: StorageProvider): boolean {
   return !!store.getItem;

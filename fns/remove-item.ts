@@ -20,7 +20,7 @@ export function removeItem(
 }
 
 /**
- * Can `removeItem` by used on the store?
+ * Can `removeItem` be used on the store?
  */
 export function canRemoveItem(store: StorageProvider): boolean {
   return !!store.removeItem;

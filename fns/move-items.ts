@@ -20,7 +20,7 @@ export async function moveItems<T>(
 }
 
 /**
- * Can `moveItems` by used on the store?
+ * Can `moveItems` be used on the store?
  */
 export function canMoveItems(
   fromStore: StorageProvider,

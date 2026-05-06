@@ -24,7 +24,7 @@ export async function clearItems(
 }
 
 /**
- * Can `clearItems` by used on the store?
+ * Can `clearItems` be used on the store?
  */
 export function canClearItems(store: StorageProvider): boolean {
   return !!store.clearItems || (canRemoveItem(store) && canListKeys(store));

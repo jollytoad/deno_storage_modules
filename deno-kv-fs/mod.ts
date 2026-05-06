@@ -106,7 +106,7 @@ export async function clearItems(prefix: StorageKey): Promise<void> {
 
 /**
  * Close all associated resources.
- * This isn't generally required in most situations, it's main use is within test cases.
+ * This isn't generally required in most situations, its main use is within test cases.
  */
 export function close(): Promise<void> {
   return kv.close();

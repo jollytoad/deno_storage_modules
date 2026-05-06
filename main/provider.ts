@@ -183,7 +183,7 @@ export async function* commit(
   ops: Iterable<BatchedOperation>,
   options?: BatchOptions,
 ): AsyncIterable<void> {
-  // Group ops by deletegated storage provider
+  // Group ops by delegated storage provider
   const groupedOps = new Map<StorageProvider, BatchedOperation[]>();
   for (const op of ops) {
     const provider = await getStore(op[1]);

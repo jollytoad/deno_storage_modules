@@ -36,7 +36,7 @@ export interface StorageModule {
    * Get multiple items.
    * Items are returned in key -> value pairs in any order, not necessarily in
    * the same order as the given keys.
-   * Duplicated keys should be ignored, do the results should not contain
+   * Duplicated keys should be ignored, so the results should not contain
    * duplicate items.
    */
   getItems<T>(

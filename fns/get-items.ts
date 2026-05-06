@@ -38,7 +38,7 @@ export async function* getItems<T>(
 }
 
 /**
- * Can `getItems` by used on the store?
+ * Can `getItems` be used on the store?
  */
 export function canGetItems(store: StorageProvider): boolean {
   return !!store.getItems || !!store.getItem;

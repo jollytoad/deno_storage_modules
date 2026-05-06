@@ -4,11 +4,11 @@ import type { StorageKey } from "@storage/types";
  * Create a filter for unique StorageKeys.
  * For use with `asyncFilter`.
  *
- * This caches the keys internally, so the returned filter must be created
+ * This caches the keys internally, so the filter must be created
  * before each use.
  *
- * @param keyHash a function to convert the StorageKey to a string that is used
- *   as the unique hash of the key (defaults to JSON.stringify)
+ * @param keyHash a function to convert the StorageKey to a string that is
+ *   used as the unique hash of the key (defaults to JSON.stringify)
  *
  * @example
  * ```ts

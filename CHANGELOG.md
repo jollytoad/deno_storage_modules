@@ -54,7 +54,7 @@ and this project adheres to
   operations
 - Default `commit` for batching, uses `pooledMap` to concurrently apply
   operations
-- `getItems` to support efficient retreival of many items in one operation if
+- `getItems` to support efficient retrieval of many items in one operation if
   the underlying storage provider supports it
 - `@storage/fns`: comprehensive wrapper functions to polyfill those not
   explicitly implemented in a `StorageProvider`
