@@ -53,7 +53,7 @@ export interface CommitProvider {
  */
 export type BatchedOperation<
   FnName extends BatchableFnName = BatchableFnName,
-> = [
+> = readonly [
   FnName,
-  ...Parameters<Pick<StorageModule, FnName>[FnName]>,
+  ...Parameters<StorageModule[FnName]>,
 ];

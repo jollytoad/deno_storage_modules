@@ -2,7 +2,9 @@
   "name": "@storage/util",
   "version": "0.11.0",
   "exports": {
+    "./async-filter": "./async-filter.ts",
     "./default-commit": "./default-commit.ts",
-    "./key-string": "./key-string.ts"
+    "./key-string": "./key-string.ts",
+    "./unique-key-filter": "./unique-key-filter.ts"
   }
 }
