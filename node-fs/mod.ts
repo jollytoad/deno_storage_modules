@@ -182,7 +182,7 @@ async function* walk(
 export async function clearItems(keyPrefix: StorageKey): Promise<void> {
   await removeItem(keyPrefix);
   try {
-    await fs.rmdir(dirpath(keyPrefix), { recursive: true });
+    await fs.rm(dirpath(keyPrefix), { recursive: true, force: true });
   } catch (e) {
     if (isNotFound(e)) {
       return;

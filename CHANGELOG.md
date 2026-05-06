@@ -29,6 +29,7 @@ and this project adheres to
 
 - `@storage/test` ensure that keys are cloned rather than passed by reference
 - `@storage/fns` `batch` now correctly overrides previous ops with the same key
+- `@storage/node-fs` replace use of `rmdir` with `rm` for recursive deletion
 
 ## [0.11.0]
 
