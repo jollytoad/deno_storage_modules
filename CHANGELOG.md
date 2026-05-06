@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0]
+
+### BREAKING Changes
+
+- `getItems` contract changed for StorageProviders: duplicate keys should be
+  ignored so that duplicate items are not returned.
+
+### Changed
+
+- `@storage/fns` `getItems` performs key duplications for the default `getItem`
+  based implementation.
+- added test for deduplication in `getItems`
+
+### Added
+
+- `@storage/util`, `asyncFilter` and `uniqueKeyFilter` utility functions to aid
+  implementations with key deduplication.
+
 ## [0.11.0]
 
 **NOTE: This is major refactor of the library**

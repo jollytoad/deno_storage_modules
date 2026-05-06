@@ -4,6 +4,8 @@ import type {
   StorageProvider,
 } from "@storage/types";
 import { pooledMap } from "@std/async/pool";
+import { asyncFilter } from "@storage/util/async-filter";
+import { uniqueKeyFilter } from "@storage/util/unique-key-filter";
 
 const DEFAULT_CONCURRENCY = 10;
 
@@ -20,7 +22,8 @@ export async function* getItems<T>(
     yield* store.getItems(await Array.fromAsync(keys));
   } else if (store.getItem) {
     const concurrency = options?.concurrency ?? DEFAULT_CONCURRENCY;
-    for await (const pair of pooledMap(concurrency, keys, getItem)) {
+    const uniqueKeys = asyncFilter(keys, uniqueKeyFilter());
+    for await (const pair of pooledMap(concurrency, uniqueKeys, getItem)) {
       if (pair[1] !== undefined) {
         yield pair as [StorageKey, T];
       }
