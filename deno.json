@@ -18,6 +18,7 @@
     "./deno-kv",
     "./deno-kv-fs",
     "./fns",
+    "./in-memory",
     "./main",
     "./no-op",
     "./node-fs",
