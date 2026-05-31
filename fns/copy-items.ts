@@ -1,5 +1,6 @@
 import type { StorageKey, StorageProvider } from "@storage/types";
 import { canListItems, listItems } from "./list.ts";
+import { canClearItems, clearItems } from "./clear-items.ts";
 
 /**
  * Default implementation of copyItems for stores that might
@@ -16,10 +17,10 @@ export async function copyItems(
     return fromStore.copyItems(fromPrefix, toPrefix);
   }
 
-  if (toStore.clearItems && toStore.setItem) {
-    await toStore.clearItems?.(toPrefix);
+  if (canClearItems(toStore) && fromStore.getItem && toStore.setItem) {
+    await clearItems(toStore, toPrefix);
 
-    const value = await fromStore.getItem?.(fromPrefix);
+    const value = await fromStore.getItem(fromPrefix);
     if (value !== undefined) {
       await toStore.setItem(toPrefix, value);
     }

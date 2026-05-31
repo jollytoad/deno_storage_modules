@@ -18,8 +18,8 @@ export async function testCopyItems(
   prefix: StorageKey = TEST_PREFIX,
 ) {
   await t.step({
-    ignore: !canCopyItems(store) || !canSetItem(store) || !canHasItem(store) ||
-      !canGetItem(store) || !canListItems(store),
+    ignore: !canSetItem(store) || !canHasItem(store) ||
+      !canGetItem(store) || !(canListItems(store) || canCopyItems(store)),
     name: "copyItems",
     fn: async () => {
       await setItem(store, [...prefix, "original"], "this");
