@@ -120,10 +120,12 @@ type ListResult<T, M extends 0 | 1 | 2> = M extends 0 ? [StorageKey, T]
 async function* _list<T, M extends 0 | 1 | 2>(
   keyPrefix: StorageKey,
   mode: M,
+  options?: ListItemsOptions,
 ): AsyncIterable<ListResult<T, M>> {
   const start = keyPrefix.length ? getNode(keyPrefix) : root;
   if (!start) return;
   const prefix = [...keyPrefix];
+  const reverse = options?.reverse ?? false;
   const stack: { node: Node; key: StorageKey }[] = [
     { node: start, key: prefix },
   ];
@@ -143,7 +145,11 @@ async function* _list<T, M extends 0 | 1 | 2>(
       }
     }
     if (node.children) {
-      for (const [segment, child] of node.children) {
+      const entries = [...node.children.entries()].sort(([a], [b]) =>
+        compareSegments(a, b)
+      );
+      const iter = reverse ? entries : entries.toReversed();
+      for (const [segment, child] of iter) {
         stack.push({ node: child, key: [...key, segment] });
       }
     }
@@ -155,9 +161,9 @@ async function* _list<T, M extends 0 | 1 | 2>(
  */
 export function listItems<T>(
   keyPrefix: StorageKey = [],
-  _options?: ListItemsOptions,
+  options?: ListItemsOptions,
 ): AsyncIterable<[StorageKey, T]> {
-  return _list<T, 0>(keyPrefix, 0);
+  return _list<T, 0>(keyPrefix, 0, options);
 }
 
 /**
@@ -165,9 +171,9 @@ export function listItems<T>(
  */
 export function listKeys(
   keyPrefix: StorageKey = [],
-  _options?: ListItemsOptions,
+  options?: ListItemsOptions,
 ): AsyncIterable<StorageKey> {
-  return _list<unknown, 1>(keyPrefix, 1);
+  return _list<unknown, 1>(keyPrefix, 1, options);
 }
 
 /**
@@ -175,9 +181,9 @@ export function listKeys(
  */
 export function listValues<T>(
   keyPrefix: StorageKey = [],
-  _options?: ListItemsOptions,
+  options?: ListItemsOptions,
 ): AsyncIterable<T> {
-  return _list<T, 2>(keyPrefix, 2);
+  return _list<T, 2>(keyPrefix, 2, options);
 }
 
 /**
@@ -208,4 +214,17 @@ function clearTimer(node: Node): void {
     activeTimers.delete(node.expiryTimer);
     node.expiryTimer = undefined;
   }
+}
+
+function compareSegments(
+  a: string | number | boolean,
+  b: string | number | boolean,
+): number {
+  const typeOrder = { boolean: 0, number: 1, string: 2 };
+  const ta = typeOrder[typeof a as keyof typeof typeOrder];
+  const tb = typeOrder[typeof b as keyof typeof typeOrder];
+  if (ta !== tb) return ta - tb;
+  if (typeof a === "boolean") return a === b ? 0 : a ? 1 : -1;
+  if (typeof a === "number" && typeof b === "number") return a - b;
+  return a < b ? -1 : a > b ? 1 : 0;
 }

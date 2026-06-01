@@ -15,6 +15,9 @@ and this project adheres to
   `getItemsOptions`, and `batchOptions`. These are merged with (and overridden
   by) any per-call options. `DelegatedStoreConfig` now extends
   `DelegatedStoreOptions`.
+- `@storage/in-memory` list operations (`listItems`, `listKeys`, `listValues`)
+  now return results in lexicographic key order. Supports
+  `ListItemsOptions.reverse`. `orderedByKey` test option enabled.
 
 ## [0.13.0] - 2026-06-01
 
