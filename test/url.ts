@@ -1,4 +1,4 @@
-import type { DelegatedStore, StorageProvider } from "@storage/types";
+import type { DelegatingStore, StorageProvider } from "@storage/types";
 import { assertStringIncludes } from "@std/assert/string-includes";
 
 /**
@@ -22,7 +22,7 @@ export async function testUrl(
  */
 export async function testUrlForPrefix(
   t: Deno.TestContext,
-  { url }: DelegatedStore,
+  { url }: DelegatingStore,
   includes: string,
   prefix: string,
 ) {

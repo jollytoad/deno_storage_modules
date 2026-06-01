@@ -8,7 +8,7 @@ import type {
   StorageProvider,
 } from "@storage/types";
 import * as fn from "@storage/fns";
-import { getStore, url } from "./delegate.ts";
+import { getDelegated, url } from "./delegate.ts";
 import { defaultCommit } from "@storage/util/default-commit";
 
 ({
@@ -34,21 +34,24 @@ export { url };
  * particular key. There still may be some sub-keys that differ.
  */
 export async function isWritable(key: StorageKey = []): Promise<boolean> {
-  return fn.isWritable(await getStore(key), key);
+  const { store, mapKey } = getDelegated(key);
+  return fn.isWritable(await store, mapKey(key));
 }
 
 /**
  * Determine whether a value is set for the given key in the delegated storage.
  */
 export async function hasItem(key: StorageKey): Promise<boolean> {
-  return fn.hasItem(await getStore(key), key);
+  const { store, mapKey } = getDelegated(key);
+  return fn.hasItem(await store, mapKey(key));
 }
 
 /**
  * Get a value for the given key from the delegated storage.
  */
 export async function getItem<T>(key: StorageKey): Promise<T | undefined> {
-  return fn.getItem(await getStore(key), key);
+  const { store, mapKey } = getDelegated(key);
+  return fn.getItem(await store, mapKey(key));
 }
 
 /**
@@ -59,14 +62,16 @@ export async function setItem<T>(
   value: T,
   options?: SetItemOptions,
 ): Promise<void> {
-  return fn.setItem(await getStore(key), key, value, options);
+  const { store, mapKey } = getDelegated(key);
+  return fn.setItem(await store, mapKey(key), value, options);
 }
 
 /**
  * Remove the value with the given key from the delegated storage.
  */
 export async function removeItem(key: StorageKey): Promise<void> {
-  return fn.removeItem(await getStore(key), key);
+  const { store, mapKey } = getDelegated(key);
+  return fn.removeItem(await store, mapKey(key));
 }
 
 /**
@@ -79,7 +84,8 @@ export async function* listItems<T>(
   prefix: StorageKey = [],
   options?: ListItemsOptions,
 ): AsyncIterable<[StorageKey, T]> {
-  yield* fn.listItems(await getStore(prefix), prefix, options);
+  const { store, mapKey } = getDelegated(prefix);
+  yield* fn.listItems(await store, mapKey(prefix), options);
 }
 
 /**
@@ -89,7 +95,8 @@ export async function* listValues<T>(
   prefix: StorageKey = [],
   options?: ListItemsOptions,
 ): AsyncIterable<T> {
-  yield* fn.listValues<T>(await getStore(prefix), prefix, options);
+  const { store, mapKey } = getDelegated(prefix);
+  yield* fn.listValues<T>(await store, mapKey(prefix), options);
 }
 
 /**
@@ -99,7 +106,8 @@ export async function* listKeys(
   prefix: StorageKey = [],
   options?: ListItemsOptions,
 ): AsyncIterable<StorageKey> {
-  yield* fn.listKeys(await getStore(prefix), prefix, options);
+  const { store, mapKey } = getDelegated(prefix);
+  yield* fn.listKeys(await store, mapKey(prefix), options);
 }
 
 /**
@@ -107,7 +115,8 @@ export async function* listKeys(
  * clean up.
  */
 export async function clearItems(prefix: StorageKey): Promise<void> {
-  return fn.clearItems(await getStore(prefix), prefix);
+  const { store, mapKey } = getDelegated(prefix);
+  return fn.clearItems(await store, mapKey(prefix));
 }
 
 /**
@@ -118,11 +127,18 @@ export async function copyItems(
   fromPrefix: StorageKey,
   toPrefix: StorageKey,
 ): Promise<void> {
+  const fromEntry = getDelegated(fromPrefix);
+  const toEntry = getDelegated(toPrefix);
   const [fromStore, toStore] = await Promise.all([
-    getStore(fromPrefix),
-    getStore(toPrefix),
+    fromEntry.store,
+    toEntry.store,
   ]);
-  return fn.copyItems(fromStore, fromPrefix, toPrefix, toStore);
+  return fn.copyItems(
+    fromStore,
+    fromEntry.mapKey(fromPrefix),
+    toEntry.mapKey(toPrefix),
+    toStore,
+  );
 }
 
 /**
@@ -133,11 +149,18 @@ export async function moveItems(
   fromPrefix: StorageKey,
   toPrefix: StorageKey,
 ): Promise<void> {
+  const fromEntry = getDelegated(fromPrefix);
+  const toEntry = getDelegated(toPrefix);
   const [fromStore, toStore] = await Promise.all([
-    getStore(fromPrefix),
-    getStore(toPrefix),
+    fromEntry.store,
+    toEntry.store,
   ]);
-  return await fn.moveItems(fromStore, fromPrefix, toPrefix, toStore);
+  return await fn.moveItems(
+    fromStore,
+    fromEntry.mapKey(fromPrefix),
+    toEntry.mapKey(toPrefix),
+    toStore,
+  );
 }
 
 /**
@@ -160,13 +183,14 @@ async function* groupKeysByStore(
 
   await Promise.all(
     Iterator.from(keys).map(async (key) => {
-      const store = await getStore(key);
+      const entry = getDelegated(key);
+      const store = await entry.store;
       let group = keysPerStore.get(store);
       if (!group) {
         group = new Set();
         keysPerStore.set(store, group);
       }
-      group.add(key);
+      group.add(entry.mapKey(key));
     }),
   );
 
@@ -186,19 +210,26 @@ export async function* commit(
   // Group ops by delegated storage provider
   const groupedOps = new Map<StorageProvider, BatchedOperation[]>();
   for (const op of ops) {
-    const provider = await getStore(op[1]);
-    let providerOps = groupedOps.get(provider);
+    const entry = getDelegated(op[1]);
+    const store = await entry.store;
+    const mappedKey = entry.mapKey(op[1]);
+    const mappedOp = [
+      op[0],
+      mappedKey,
+      ...op.slice(2),
+    ] as unknown as BatchedOperation;
+    let providerOps = groupedOps.get(store);
     if (!providerOps) {
       providerOps = [];
-      groupedOps.set(provider, providerOps);
+      groupedOps.set(store, providerOps);
     }
-    providerOps.push(op);
+    providerOps.push(mappedOp);
   }
 
   // Perform commits for individual storage providers
-  for (const [provider, ops] of groupedOps) {
-    yield* provider.commit
-      ? provider.commit(ops, options)
-      : defaultCommit(provider, ops, options);
+  for (const [store, ops] of groupedOps) {
+    yield* store.commit
+      ? store.commit(ops, options)
+      : defaultCommit(store, ops, options);
   }
 }

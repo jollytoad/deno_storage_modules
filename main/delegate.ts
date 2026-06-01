@@ -1,6 +1,9 @@
 import type {
   Awaitable,
-  DelegatedStore,
+  DelegatedStoreConfig,
+  DelegatedStoreOptions,
+  DelegatingStore,
+  KeyMapper,
   StorageKey,
   StorageModule,
   StorageProvider,
@@ -12,34 +15,61 @@ import * as fn from "@storage/fns";
   setStore,
   getStore,
   close,
-}) satisfies DelegatedStore & Pick<StorageModule, "close">;
+  getDelegated,
+}) satisfies DelegatingStore & Pick<StorageModule, "close">;
 
-let defaultStore: Promise<StorageProvider> | undefined;
-let stores: Map<string, Promise<StorageProvider>> | undefined;
+const stores = new Map<string | undefined, DelegatedStoreConfig>();
 
 /**
  * Set the storage module to which all function calls are delegated
  *
- * @param storageProvider may be the store, promise of the store, or undefined
+ * @param store may be the store, promise of the store, or undefined
  *   to remove any delegate store
  * @param prefix the given storage module will only apply to keys with this
  *   prefix, if this is not supplied then the given storage module is set as
  *   the default/fallback store
+ * @param options additional options
  */
 export function setStore(
-  storageProvider?: Awaitable<StorageProvider>,
+  store?: Awaitable<StorageProvider>,
   prefix?: string,
+  options?: DelegatedStoreOptions,
 ) {
-  if (prefix === undefined) {
-    defaultStore = storageProvider
-      ? Promise.resolve(storageProvider)
-      : undefined;
-  } else if (storageProvider) {
-    stores ??= new Map();
-    stores.set(prefix, Promise.resolve(storageProvider));
+  if (store) {
+    const { prefixMapping } = options ?? {};
+
+    const mapKey: KeyMapper = prefixMapping
+      ? prefix === undefined
+        ? (key) => [...prefixMapping, ...key]
+        : (key) => [...prefixMapping, ...key.slice(1)]
+      : (key) => key;
+
+    stores.set(prefix, { store, mapKey });
   } else {
-    stores?.delete(prefix);
+    stores.delete(prefix);
   }
+}
+
+/**
+ * Look up the `DelegatedStoreConfig` for the given key, falling back
+ * to the default store and then to `STORAGE_MODULE` env var.
+ */
+export function getDelegated(
+  key?: StorageKey | string,
+): DelegatedStoreConfig {
+  if (key?.length) {
+    const prefix = typeof key === "string" ? key : String(key[0]);
+    if (prefix) {
+      const entry = stores.get(prefix);
+      if (entry) {
+        return entry;
+      }
+    }
+  }
+  if (!stores.has(undefined)) {
+    setStore(import("./_from_env.ts").then((m) => m.fromEnv()));
+  }
+  return stores.get(undefined)!;
 }
 
 /**
@@ -47,32 +77,22 @@ export function setStore(
  * if one has not been set it will attempt to dynamically import the module
  * declared in the `STORAGE_MODULE` environment variable.
  *
+ * @deprecated Use `getDelegated` instead.
+ *
  * @returns the promise of the store to which all operations are delegated
  * @throws if no store or env var has been set, or if dynamic import fails
  */
 export async function getStore(
   key?: StorageKey | string,
 ): Promise<StorageProvider> {
-  if (key && key.length) {
-    const prefix = typeof key === "string" ? key : String(key[0]);
-    if (prefix) {
-      const store = stores?.get(prefix);
-      if (store) {
-        return store;
-      }
-    }
-  }
-  if (!defaultStore) {
-    defaultStore = (await import("./_from_env.ts")).fromEnv();
-  }
-  return await defaultStore;
+  return await getDelegated(key).store;
 }
 
 /**
  * Returns the `url()` of the delegated storage module.
  */
 export async function url(key?: StorageKey | string): Promise<string> {
-  return (await getStore(key)).url();
+  return (await getDelegated(key).store).url();
 }
 
 /**
@@ -81,11 +101,9 @@ export async function url(key?: StorageKey | string): Promise<string> {
  * it's main use is within test cases.
  */
 export async function close(): Promise<void> {
-  const pending = [defaultStore, ...stores?.values() ?? []].map(async (store) =>
-    store ? fn.close(await store) : undefined
+  const pending = [...stores.values()].map(
+    async (entry) => fn.close(await entry.store),
   );
-  defaultStore = undefined;
-  stores?.clear();
-  stores = undefined;
+  stores.clear();
   await Promise.allSettled(pending);
 }

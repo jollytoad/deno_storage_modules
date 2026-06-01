@@ -1,7 +1,7 @@
 import type {
   BatchedFn,
   BatchOptions,
-  DelegatedStore,
+  DelegatingStore,
   StorageKey,
   StorageModule,
   StorageProvider,
@@ -10,13 +10,13 @@ import { batch as commonBatch } from "@storage/fns/batch";
 import * as provider from "./provider.ts";
 import * as delegate from "./delegate.ts";
 
-export type { DelegatedStore, StorageKey, StorageModule };
+export type { DelegatingStore, StorageKey, StorageModule };
 
 ({
   ...provider,
   ...delegate,
   batch,
-}) satisfies StorageModule & StorageProvider & DelegatedStore;
+}) satisfies StorageModule & StorageProvider & DelegatingStore;
 
 export * from "./provider.ts";
 export * from "./delegate.ts";

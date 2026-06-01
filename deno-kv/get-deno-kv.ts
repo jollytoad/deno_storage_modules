@@ -4,7 +4,7 @@
  *
  * @module
  */
-import type { DelegatedStore, StorageKey } from "@storage/types";
+import type { DelegatingStore, StorageKey } from "@storage/types";
 import type { ExposeDenoKv } from "./types.ts";
 
 /**
@@ -34,12 +34,14 @@ import type { ExposeDenoKv } from "./types.ts";
  * ```
  */
 export async function getDenoKv(
-  store: Partial<ExposeDenoKv> & Partial<DelegatedStore>,
+  store: Partial<ExposeDenoKv> & Partial<DelegatingStore>,
   key: StorageKey,
 ): Promise<Deno.Kv | undefined> {
   if ("getDenoKv" in store && typeof store.getDenoKv === "function") {
     return (store.getDenoKv)(key);
-  } else if ("getStore" in store && typeof store.getStore === "function") {
-    return getDenoKv(await store.getStore(), key);
+  } else if (
+    "getDelegated" in store && typeof store.getDelegated === "function"
+  ) {
+    return getDenoKv(await store.getDelegated(key).store, key);
   }
 }

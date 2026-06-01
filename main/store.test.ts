@@ -1,4 +1,5 @@
 // deno-lint-ignore-file require-await
+import { assertEquals } from "@std/assert/equals";
 import { assertRejects } from "@std/assert/rejects";
 import {
   createTestItems,
@@ -11,7 +12,7 @@ import {
 import * as store from "./mod.ts";
 import type {
   BatchedOperation,
-  DelegatedStore,
+  DelegatingStore,
   StorageKey,
 } from "@storage/types";
 import { assertArrayIncludes } from "@std/assert/array-includes";
@@ -43,7 +44,7 @@ Deno.test("store - no store selected throws an error", async () => {
   store.setStore();
 
   await assertRejects(
-    () => store.getStore(),
+    async () => await store.getDelegated().store,
     Error,
     "A StorageModule was not selected",
   );
@@ -60,7 +61,7 @@ Deno.test("store - with prefix", async (t) => {
     readonly: true,
     extraTests: [
       (t, store) =>
-        testUrlForPrefix(t, store as DelegatedStore, "deno-kv", "store"),
+        testUrlForPrefix(t, store as DelegatingStore, "deno-kv", "store"),
       (t, store) => testIsWritable(t, store, true, "store"),
     ],
   });
@@ -120,6 +121,127 @@ Deno.test("store - batch across multiple providers", async (t) => {
     await teardown(t, store);
   }
 });
+
+Deno.test("store - prefix mapping strips prefix", async () => {
+  Deno.env.delete("STORAGE_MODULE");
+
+  const args: StorageKey[] = [];
+  const provider = makeSpyProvider(args);
+
+  store.setStore(provider, "users", { prefixMapping: [] });
+  store.setStore(import("@storage/no-op"));
+
+  try {
+    await store.setItem(["users", "abc"], "value1");
+    assertEquals(args, [["abc"]]);
+
+    await store.setItem(["users", "def", "nested"], "value2");
+    assertEquals(args, [["abc"], ["def", "nested"]]);
+
+    await store.getItem(["users", "abc"]);
+    assertEquals(args, [["abc"], ["def", "nested"], ["abc"]]);
+
+    await store.hasItem(["users", "abc"]);
+    assertEquals(args, [["abc"], ["def", "nested"], ["abc"], ["abc"]]);
+
+    await store.removeItem(["users", "abc"]);
+    assertEquals(args, [["abc"], ["def", "nested"], ["abc"], ["abc"], ["abc"]]);
+  } finally {
+    await store.close();
+  }
+});
+
+Deno.test("store - prefix mapping substitutes prefix", async () => {
+  Deno.env.delete("STORAGE_MODULE");
+
+  const args: StorageKey[] = [];
+  const provider = makeSpyProvider(args);
+
+  store.setStore(provider, "users", { prefixMapping: ["user"] });
+  store.setStore(import("@storage/no-op"));
+
+  try {
+    await store.setItem(["users", "abc"], "value1");
+    assertEquals(args, [["user", "abc"]]);
+
+    await store.setItem(["users", "def", "nested"], "value2");
+    assertEquals(args, [["user", "abc"], ["user", "def", "nested"]]);
+  } finally {
+    await store.close();
+  }
+});
+
+Deno.test("store - prefix mapping multi-element substitution", async () => {
+  Deno.env.delete("STORAGE_MODULE");
+
+  const args: StorageKey[] = [];
+  const provider = makeSpyProvider(args);
+
+  store.setStore(provider, "users", { prefixMapping: ["v2", "users"] });
+  store.setStore(import("@storage/no-op"));
+
+  try {
+    await store.setItem(["users", "abc"], "value1");
+    assertEquals(args, [["v2", "users", "abc"]]);
+
+    await store.setItem(["users", "def", "nested"], "value2");
+    assertEquals(args, [["v2", "users", "abc"], [
+      "v2",
+      "users",
+      "def",
+      "nested",
+    ]]);
+  } finally {
+    await store.close();
+  }
+});
+
+Deno.test("store - prefix mapping default behavior unchanged", async () => {
+  Deno.env.delete("STORAGE_MODULE");
+
+  const args: StorageKey[] = [];
+  const provider = makeSpyProvider(args);
+
+  store.setStore(provider, "users"); // no prefixMapping param
+  store.setStore(import("@storage/no-op"));
+
+  try {
+    await store.setItem(["users", "abc"], "value1");
+    assertEquals(args, [["users", "abc"]]);
+
+    await store.getItem(["users", "abc"]);
+    assertEquals(args, [["users", "abc"], ["users", "abc"]]);
+  } finally {
+    await store.close();
+  }
+});
+
+/**
+ * Create a minimal StorageProvider that records keys passed to each call
+ */
+function makeSpyProvider(args: StorageKey[]) {
+  const record = (key: StorageKey) => {
+    args.push(key);
+  };
+  return {
+    url: async () => "tracked",
+    setItem: async <T>(key: StorageKey, _value: T) => {
+      record(key);
+    },
+    getItem: async <T>(key: StorageKey) => {
+      record(key);
+      return undefined;
+    },
+    hasItem: async (key: StorageKey) => {
+      record(key);
+      return false;
+    },
+    removeItem: async (key: StorageKey) => {
+      record(key);
+    },
+    close: async () => {},
+  };
+}
 
 /**
  * Create a minimal StorageProvider for testing batched ops
