@@ -1,11 +1,11 @@
 import { dirname } from "@std/path/dirname";
 import { relative } from "@std/path/relative";
 import { resolve } from "@std/path/resolve";
-import { SEPARATOR_PATTERN } from "@std/path/constants";
+import { SEPARATOR } from "@std/path/constants";
 import { ensureDir } from "@std/fs/ensure-dir";
 import { emptyDir } from "@std/fs/empty-dir";
 import { exists } from "@std/fs/exists";
-import { walk } from "@std/fs/walk";
+import { join } from "@std/path/join";
 import { copy } from "@std/fs/copy";
 import { move } from "@std/fs/move";
 import type {
@@ -119,10 +119,8 @@ export async function* listItems<T>(
 
   try {
     for await (const entry of walk(path)) {
-      if (entry.isFile && entry.name.endsWith(".json")) {
-        const key = relative(root, entry.path.slice(0, -5)).split(
-          SEPARATOR_PATTERN,
-        );
+      if (entry.name.endsWith(".json")) {
+        const key = relative(root, entry.path.slice(0, -5)).split(SEPARATOR);
         const item = await getItem<T>(key);
         if (item !== undefined) {
           yield [fromStrKey(key), item];
@@ -185,6 +183,19 @@ export async function moveItems<T>(
     if (!isNotFound(e)) throw e;
   }
   await move(dirpath(fromPrefix), dirpath(toPrefix), { overwrite: true });
+}
+
+async function* walk(
+  root: string,
+): AsyncIterable<{ name: string; path: string }> {
+  for await (const entry of Deno.readDir(root)) {
+    const path = join(root, entry.name);
+    if (entry.isDirectory) {
+      yield* walk(path);
+    } else if (entry.isFile) {
+      yield { path, name: entry.name };
+    }
+  }
 }
 
 function filepath(key: StorageKey) {
