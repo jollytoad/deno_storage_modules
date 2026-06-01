@@ -3,7 +3,9 @@
 This project provides a simple storage API module across a variety of backends.
 
 Each module here provides the same interface to a hierarchical key -> value
-storage mechanism. So they can be imported directly, or as a swappable interface
-via an import map, or registered a delegate for a top-level key segment.
+storage mechanism over a variety of backends: Deno KV, filesystem (Deno or
+Node.js), web storage, in-memory, or no-op. So they can be imported directly, or
+as a swappable interface via an import map, or registered a delegate for a
+top-level key segment.
 
 See the main package [README](./main/README.md) for more details.

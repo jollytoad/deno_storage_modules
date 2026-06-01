@@ -80,11 +80,22 @@ import * as fsStore from "jsr:@storage/deno-fs";
 import * as kvStore from "jsr:@storage/deno-kv";
 
 setStore(fsStore, "store1");
-setStore(kvStore, "store1");
+setStore(kvStore, "store2");
 
 await setItem(["store1", "hello"], "world"); // stores in the filesystem
 await setItem(["store2", "hello"], "world"); // stores in Deno KV
 ```
+
+You can also map the prefix that the delegate store receives:
+
+```ts
+setStore(kvStore, "users", { prefixMapping: [] }); // strips "users" prefix
+setStore(kvStore, "users", { prefixMapping: ["user"] }); // replaces "users" with "user"
+setStore(kvStore, "users", { prefixMapping: ["v2", "users"] }); // multi-element replacement
+```
+
+By default, the delegate receives the full key unchanged (prefix included).
+Setting `prefixMapping` to `[]` strips the prefix entirely.
 
 ## Via environment variable
 
@@ -231,6 +242,13 @@ overrides filesystem values.
 
 Import mapping: `"$store": "jsr:@storage/deno-kv-fs"`
 
+### [@storage/in-memory](https://jsr.io/@storage/in-memory)
+
+This stores values in a `Map` in memory. Supports the `expireIn` option. All
+data is cleared on `close()`.
+
+Import mapping: `"$store": "jsr:@storage/in-memory"`
+
 ### [@storage/no-op](https://jsr.io/@storage/no-op)
 
 For the odd occasion when you want to disable storage entirely but not break
@@ -250,4 +268,5 @@ See the existing implementations for inspiration...
 - [node-fs](https://github.com/jollytoad/deno_storage_modules/blob/main/node-fs/mod.ts)
 - [deno-kv](https://github.com/jollytoad/deno_storage_modules/blob/main/deno-kv/mod.ts)
 - [deno-kv-fs](https://github.com/jollytoad/deno_storage_modules/blob/main/deno-kv-fs/mod.ts)
+- [in-memory](https://github.com/jollytoad/deno_storage_modules/blob/main/in-memory/mod.ts)
 - [no-op](https://github.com/jollytoad/deno_storage_modules/blob/main/no-op/mod.ts)

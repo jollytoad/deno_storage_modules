@@ -20,18 +20,6 @@ export interface DelegatingStore {
   ): void;
 
   /**
-   * Get the delegate store previously set via `setStore` or obtained
-   * via another mechanism (eg. env vars)
-   *
-   * @deprecated Use `getDelegated` instead.
-   *
-   * @param key get the store specific to this key or prefix
-   * @returns the promise of the store to which all operations are delegated
-   * @throws if no store has been set or can be loaded
-   */
-  getStore(key?: StorageKey | string): Promise<StorageProvider>;
-
-  /**
    * Returns the `import.meta.url` of the delegated store.
    *
    * @param key get the store specific to this key or prefix
@@ -40,10 +28,11 @@ export interface DelegatingStore {
 
   /**
    * Get the delegate store config previously set via `setStore`.
+   * The returned config's `store` promise will reject if no store has
+   * been set or can be loaded.
    *
    * @param key get the store config specific to this key or prefix
    * @returns the delegate store config
-   * @throws if no store has been set or can be loaded
    */
   getDelegated(key?: StorageKey | string): DelegatedStoreConfig;
 }

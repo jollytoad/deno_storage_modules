@@ -6,6 +6,40 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### BREAKING Changes
+
+- `DelegatedStore` interface in `@storage/types` renamed to `DelegatingStore`.
+  The old name is removed — update any references in your code.
+- `getStore` function removed from `@storage/main`. Use `getDelegated` instead.
+- `getStore` method removed from `DelegatingStore` interface. Use `getDelegated`
+  instead.
+
+### Added
+
+- `@storage/in-memory` new package: in-memory Map backed storage with `expireIn`
+  support via `setTimeout`.
+- `@storage/bench` new benchmarks package.
+- `setStore` now accepts a `prefixMapping` option to alter the key prefix of a
+  delegated store. See `DelegatedStoreOptions.prefixMapping` in
+  `@storage/types`.
+- `getDelegated` added to the `DelegatingStore` interface, returning the full
+  `DelegatedStoreConfig` (store + key mapping) for a given key prefix.
+- `DelegatedStoreOptions`, `DelegatedStoreConfig`, and `KeyMapper` types added
+  to `@storage/types`.
+
+### Changed
+
+- `@storage/deno-fs` simplified walk implementation.
+- `@storage/in-memory` performance optimisations.
+- CI updated to use Deno 2.2+.
+
+### Fixed
+
+- `@storage/fns` `copyItems` and `moveItems` now delegate to storage fns rather
+  than calling the provider directly, so all polyfills apply correctly.
+
 ## [0.12.0]
 
 ### BREAKING Changes
@@ -15,8 +49,8 @@ and this project adheres to
 
 ### Changed
 
-- `@storage/fns` `getItems` performs key duplications for the default `getItem`
-  based implementation.
+- `@storage/fns` `getItems` performs key deduplications for the default
+  `getItem` based implementation.
 - added test for deduplication in `getItems`
 - added test for `batch` deduplication of ops
 

@@ -13,7 +13,6 @@ import * as fn from "@storage/fns";
 ({
   url,
   setStore,
-  getStore,
   close,
   getDelegated,
 }) satisfies DelegatingStore & Pick<StorageModule, "close">;
@@ -70,22 +69,6 @@ export function getDelegated(
     setStore(import("./_from_env.ts").then((m) => m.fromEnv()));
   }
   return stores.get(undefined)!;
-}
-
-/**
- * Get the delegate storage module previously set via `setStore`,
- * if one has not been set it will attempt to dynamically import the module
- * declared in the `STORAGE_MODULE` environment variable.
- *
- * @deprecated Use `getDelegated` instead.
- *
- * @returns the promise of the store to which all operations are delegated
- * @throws if no store or env var has been set, or if dynamic import fails
- */
-export async function getStore(
-  key?: StorageKey | string,
-): Promise<StorageProvider> {
-  return await getDelegated(key).store;
 }
 
 /**
