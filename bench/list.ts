@@ -16,13 +16,12 @@ const PREFIX = ["bench"];
  * Benchmark {@linkcode listItems}, {@linkcode listKeys} and
  * {@linkcode listValues} — write N items, iterate, clean up.
  */
-export async function benchList(
+export function benchList(
   store: StorageProvider,
   items: Map<StorageKey, unknown>,
-): Promise<void> {
-  const name = await store.url();
+): void {
   Deno.bench({
-    name: `${name} listItems`,
+    name: `listItems`,
     ignore: !canListItems(store) || !canSetItem(store),
     fn: async (b) => {
       for (const [key, value] of items) {
@@ -42,7 +41,7 @@ export async function benchList(
   });
 
   Deno.bench({
-    name: `${name} listKeys`,
+    name: `listKeys`,
     ignore: !canListKeys(store) || !canSetItem(store),
     fn: async (b) => {
       for (const [key, value] of items) {
@@ -62,7 +61,7 @@ export async function benchList(
   });
 
   Deno.bench({
-    name: `${name} listValues`,
+    name: `listValues`,
     ignore: !canListValues(store) || !canSetItem(store),
     fn: async (b) => {
       for (const [key, value] of items) {

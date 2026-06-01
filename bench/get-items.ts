@@ -8,13 +8,12 @@ const PREFIX = ["bench"];
 /**
  * Benchmark {@linkcode getItems} — write N items, get by keys, then clean up.
  */
-export async function benchGetItems(
+export function benchGetItems(
   store: StorageProvider,
   items: Map<StorageKey, unknown>,
-): Promise<void> {
-  const name = await store.url();
+): void {
   Deno.bench({
-    name: `${name} getItems`,
+    name: `getItems`,
     ignore: !canGetItems(store) || !canSetItem(store),
     fn: async (b) => {
       const keys: StorageKey[] = [];

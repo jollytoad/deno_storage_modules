@@ -1,5 +1,4 @@
 import type { StorageKey, StorageProvider } from "@storage/types";
-import { isWritable } from "@storage/fns/is-writable";
 import { createTestItems } from "./fixtures.ts";
 import { benchSetItem } from "./set-item.ts";
 import { benchGetItem } from "./get-item.ts";
@@ -18,22 +17,20 @@ const PREFIX: StorageKey = ["bench"];
  * Register `Deno.bench` benchmarks for all storage operations
  * on a `StorageProvider` via the `@storage/fns` functions.
  */
-export async function benchStore(
+export function benchStore(
   store: StorageProvider,
-): Promise<void> {
+): void {
   const items = createTestItems(PREFIX);
 
-  if (await isWritable(store)) {
-    await benchSetItem(store, items);
-    await benchRemoveItem(store, items);
-    await benchClearItems(store, items);
-    await benchCopyItems(store, items);
-    await benchMoveItems(store, items);
-    await benchBatch(store, items);
-  }
+  benchSetItem(store, items);
+  benchRemoveItem(store, items);
+  benchClearItems(store, items);
+  benchCopyItems(store, items);
+  benchMoveItems(store, items);
+  benchBatch(store, items);
 
-  await benchGetItem(store, items);
-  await benchHasItem(store, items);
-  await benchGetItems(store, items);
-  await benchList(store, items);
+  benchGetItem(store, items);
+  benchHasItem(store, items);
+  benchGetItems(store, items);
+  benchList(store, items);
 }

@@ -9,13 +9,12 @@ const DST = ["bench-dst"];
 /**
  * Benchmark {@linkcode copyItems} — write N items, copy to a new prefix, clean up.
  */
-export async function benchCopyItems(
+export function benchCopyItems(
   store: StorageProvider,
   items: Map<StorageKey, unknown>,
-): Promise<void> {
-  const name = await store.url();
+): void {
   Deno.bench({
-    name: `${name} copyItems`,
+    name: `copyItems`,
     ignore: !canCopyItems(store) || !canSetItem(store),
     fn: async (b) => {
       for (const [key, value] of items) {

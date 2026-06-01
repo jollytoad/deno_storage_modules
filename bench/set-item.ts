@@ -7,13 +7,12 @@ const PREFIX = ["bench"];
 /**
  * Benchmark {@linkcode setItem} — write N items then clean up.
  */
-export async function benchSetItem(
+export function benchSetItem(
   store: StorageProvider,
   items: Map<StorageKey, unknown>,
-): Promise<void> {
-  const name = await store.url();
+): void {
   Deno.bench({
-    name: `${name} setItem`,
+    name: `setItem`,
     ignore: !canSetItem(store),
     fn: async (b) => {
       b.start();

@@ -9,13 +9,12 @@ const PREFIX = ["bench"];
 /**
  * Benchmark {@linkcode batch} — batch-set and batch-remove N items.
  */
-export async function benchBatch(
+export function benchBatch(
   store: StorageProvider,
   items: Map<StorageKey, unknown>,
-): Promise<void> {
-  const name = await store.url();
+): void {
   Deno.bench({
-    name: `${name} batch setItem`,
+    name: `batch setItem`,
     ignore: !canSetItem(store) || !canRemoveItem(store),
     fn: async (b) => {
       b.start();
@@ -33,7 +32,7 @@ export async function benchBatch(
   });
 
   Deno.bench({
-    name: `${name} batch removeItem`,
+    name: `batch removeItem`,
     ignore: !canSetItem(store) || !canRemoveItem(store),
     fn: async (b) => {
       for (const [key, value] of items) {

@@ -7,13 +7,12 @@ const PREFIX = ["bench"];
 /**
  * Benchmark {@linkcode clearItems} — write N items, clear the prefix.
  */
-export async function benchClearItems(
+export function benchClearItems(
   store: StorageProvider,
   items: Map<StorageKey, unknown>,
-): Promise<void> {
-  const name = await store.url();
+): void {
   Deno.bench({
-    name: `${name} clearItems`,
+    name: `clearItems`,
     ignore: !canClearItems(store) || !canSetItem(store),
     fn: async (b) => {
       for (const [key, value] of items) {
