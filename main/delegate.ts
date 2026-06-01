@@ -43,7 +43,11 @@ export function setStore(
         : (key) => [...prefixMapping, ...key.slice(1)]
       : (key) => key;
 
-    stores.set(prefix, { store, mapKey });
+    stores.set(prefix, {
+      store,
+      mapKey,
+      ...options,
+    });
   } else {
     stores.delete(prefix);
   }

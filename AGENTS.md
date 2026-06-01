@@ -10,6 +10,10 @@
 | `deno task ok`    | fmt → lint → `deno check` → test → `deno publish --dry-run --allow-dirty`   |
 | `deno task lock`  | Delete `deno.lock`, reinstall, recheck                                      |
 
+**After making changes, run `deno task ok`** — it runs fmt, lint, typecheck,
+tests, and dry-run publish. **After major changes to storage providers, run
+`deno task bench`** to check for performance regressions.
+
 CI order: `deno fmt --check` → `deno task lint` → `deno check` →
 `deno task test` → `deno publish --dry-run`.
 
@@ -41,6 +45,10 @@ Run a single package's tests: `deno test <dir>/` (e.g. `deno test deno-kv/`).
   arrays, not strings.
 - **`StorageProvider`**: providers export individual functions, not a class.
   Each file starts with `({...} satisfies StorageProvider)`.
+- **`fns/` graceful fallback**: each `@storage/fns/*` fn checks whether the
+  provider implements the operation natively (`if store.fn`) before delegating.
+  Falls back to a generic impl (or no-op) when the provider doesn't support it.
+- **`no-op` provider**: exports only `url()` — the minimum valid provider.
 
 ## Conventions
 
@@ -53,6 +61,12 @@ Run a single package's tests: `deno test <dir>/` (e.g. `deno test deno-kv/`).
   `./unique-key-filter` (no top-level `"."` re-export). `@storage/deno-kv` has
   `./get-deno-kv` and `./types`.
 - **`--unstable-kv`** required for KV tests (set in root `deno.json`).
+- **`setStore` options**: `setStore(store, prefix?, options?)` accepts
+  `DelegatedStoreOptions` with `prefixMapping` (rewrites first key segment) and
+  per-call defaults: `setItemOptions`, `listItemsOptions`, `getItemsOptions`,
+  `batchOptions`. `DelegatedStoreConfig extends
+  DelegatedStoreOptions` so
+  options spread directly into the config.
 
 ## Environment variables
 

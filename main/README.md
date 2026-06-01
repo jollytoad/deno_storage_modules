@@ -97,6 +97,20 @@ setStore(kvStore, "users", { prefixMapping: ["v2", "users"] }); // multi-element
 By default, the delegate receives the full key unchanged (prefix included).
 Setting `prefixMapping` to `[]` strips the prefix entirely.
 
+### Default per-call options
+
+You can also provide default options on `setStore` that will apply to every
+operation on that delegate. Per-call options override the defaults.
+
+```ts
+setStore(kvStore, "kv", {
+  setItemOptions: { expireIn: 60_000 }, // expire items after 1 minute
+  listItemsOptions: { reverse: true }, // always list in reverse
+  getItemsOptions: { concurrency: 10 }, // max concurrency for getItems
+  batchOptions: { atomic: "preferred" }, // prefer atomic batch commits
+});
+```
+
 ## Via environment variable
 
 Set the `STORAGE_MODULE` environment variable to the URL of the preferred
@@ -168,6 +182,11 @@ implement:
   clearing any items and sub-items that already existed at the target key
 - `moveItems(fromKey, toKey)` - move an item and all sub-items to the new key
   clearing any items and sub-items that already existed at the target key
+- `batch(fn, options?)` - buffers `setItem` and `removeItem` calls made within
+  `fn`, then commits them all at once. The callback receives a control object
+  with `commit()` and `abort()`. Batches can be nested. Pass
+  `{ atomic:
+  "preferred" }` to request atomic commit where supported.
 
 These optional functions are always available from `@storage/main`, using a
 default implementation if the delegate storage module doesn't provide it.

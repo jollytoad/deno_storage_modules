@@ -1,6 +1,8 @@
 import type {
+  Awaitable,
   BatchedOperation,
   BatchOptions,
+  DelegatedStoreConfig,
   GetItemsOptions,
   ListItemsOptions,
   SetItemOptions,
@@ -62,8 +64,11 @@ export async function setItem<T>(
   value: T,
   options?: SetItemOptions,
 ): Promise<void> {
-  const { store, mapKey } = getDelegated(key);
-  return fn.setItem(await store, mapKey(key), value, options);
+  const { store, mapKey, setItemOptions } = getDelegated(key);
+  return fn.setItem(await store, mapKey(key), value, {
+    ...setItemOptions,
+    ...options,
+  });
 }
 
 /**
@@ -84,8 +89,11 @@ export async function* listItems<T>(
   prefix: StorageKey = [],
   options?: ListItemsOptions,
 ): AsyncIterable<[StorageKey, T]> {
-  const { store, mapKey } = getDelegated(prefix);
-  yield* fn.listItems(await store, mapKey(prefix), options);
+  const { store, mapKey, listItemsOptions } = getDelegated(prefix);
+  yield* fn.listItems(await store, mapKey(prefix), {
+    ...listItemsOptions,
+    ...options,
+  });
 }
 
 /**
@@ -95,8 +103,11 @@ export async function* listValues<T>(
   prefix: StorageKey = [],
   options?: ListItemsOptions,
 ): AsyncIterable<T> {
-  const { store, mapKey } = getDelegated(prefix);
-  yield* fn.listValues<T>(await store, mapKey(prefix), options);
+  const { store, mapKey, listItemsOptions } = getDelegated(prefix);
+  yield* fn.listValues<T>(await store, mapKey(prefix), {
+    ...listItemsOptions,
+    ...options,
+  });
 }
 
 /**
@@ -106,8 +117,11 @@ export async function* listKeys(
   prefix: StorageKey = [],
   options?: ListItemsOptions,
 ): AsyncIterable<StorageKey> {
-  const { store, mapKey } = getDelegated(prefix);
-  yield* fn.listKeys(await store, mapKey(prefix), options);
+  const { store, mapKey, listItemsOptions } = getDelegated(prefix);
+  yield* fn.listKeys(await store, mapKey(prefix), {
+    ...listItemsOptions,
+    ...options,
+  });
 }
 
 /**
@@ -171,31 +185,36 @@ export async function* getItems<T>(
   options?: GetItemsOptions,
 ): AsyncIterable<[StorageKey, T]> {
   // TODO: use MuxAsyncIterator
-  for await (const [store, groupedKeys] of groupKeysByStore(keys)) {
-    yield* fn.getItems<T>(store, groupedKeys, options);
+  for await (
+    const [store, groupedKeys, storeDefaults] of groupKeysByStore(keys)
+  ) {
+    yield* fn.getItems<T>(store, groupedKeys, {
+      ...storeDefaults,
+      ...options,
+    });
   }
 }
 
 async function* groupKeysByStore(
   keys: Iterable<StorageKey>,
-): AsyncIterable<[StorageProvider, Iterable<StorageKey>]> {
-  const keysPerStore = new Map<StorageProvider, Set<StorageKey>>();
+): AsyncIterable<[StorageProvider, Iterable<StorageKey>, GetItemsOptions?]> {
+  const keysPerEntry = new Map<
+    DelegatedStoreConfig,
+    { storePromise: Awaitable<StorageProvider>; keys: Set<StorageKey> }
+  >();
 
-  await Promise.all(
-    Iterator.from(keys).map(async (key) => {
-      const entry = getDelegated(key);
-      const store = await entry.store;
-      let group = keysPerStore.get(store);
-      if (!group) {
-        group = new Set();
-        keysPerStore.set(store, group);
-      }
-      group.add(entry.mapKey(key));
-    }),
-  );
+  for (const key of Iterator.from(keys)) {
+    const entry = getDelegated(key);
+    let group = keysPerEntry.get(entry);
+    if (!group) {
+      group = { storePromise: entry.store, keys: new Set() };
+      keysPerEntry.set(entry, group);
+    }
+    group!.keys.add(entry.mapKey(key));
+  }
 
-  for (const [store, keySet] of keysPerStore) {
-    yield [store, keySet.values()];
+  for (const [entry, { storePromise, keys }] of keysPerEntry) {
+    yield [await storePromise, keys.values(), entry.getItemsOptions];
   }
 }
 
@@ -207,29 +226,41 @@ export async function* commit(
   ops: Iterable<BatchedOperation>,
   options?: BatchOptions,
 ): AsyncIterable<void> {
-  // Group ops by delegated storage provider
-  const groupedOps = new Map<StorageProvider, BatchedOperation[]>();
+  // Group ops by delegated storage entry
+  const groupedOps = new Map<
+    DelegatedStoreConfig,
+    {
+      storePromise: Awaitable<StorageProvider>;
+      ops: BatchedOperation[];
+      batchOptions: BatchOptions | undefined;
+    }
+  >();
   for (const op of ops) {
     const entry = getDelegated(op[1]);
-    const store = await entry.store;
     const mappedKey = entry.mapKey(op[1]);
     const mappedOp = [
       op[0],
       mappedKey,
       ...op.slice(2),
     ] as unknown as BatchedOperation;
-    let providerOps = groupedOps.get(store);
-    if (!providerOps) {
-      providerOps = [];
-      groupedOps.set(store, providerOps);
+    let group = groupedOps.get(entry);
+    if (!group) {
+      group = {
+        storePromise: entry.store,
+        ops: [],
+        batchOptions: entry.batchOptions,
+      };
+      groupedOps.set(entry, group);
     }
-    providerOps.push(mappedOp);
+    group!.ops.push(mappedOp);
   }
 
   // Perform commits for individual storage providers
-  for (const [store, ops] of groupedOps) {
+  for (const { storePromise, ops, batchOptions } of groupedOps.values()) {
+    const store = await storePromise;
+    const merged = { ...batchOptions, ...options };
     yield* store.commit
-      ? store.commit(ops, options)
-      : defaultCommit(store, ops, options);
+      ? store.commit(ops, merged)
+      : defaultCommit(store, ops, merged);
   }
 }

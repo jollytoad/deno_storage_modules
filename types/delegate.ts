@@ -1,4 +1,10 @@
 import type { Awaitable, StorageKey } from "./common.ts";
+import type {
+  BatchOptions,
+  GetItemsOptions,
+  ListItemsOptions,
+  SetItemOptions,
+} from "./consumer.ts";
 import type { StorageProvider } from "./provider.ts";
 
 /**
@@ -47,19 +53,51 @@ export interface DelegatedStoreOptions {
    * strip the prefix entirely.
    */
   prefixMapping?: StorageKey;
+
+  /**
+   * Default options for `setItem` calls to this store.
+   * These will be merged with (and overridden by) any per-call options.
+   */
+  setItemOptions?: SetItemOptions;
+
+  /**
+   * Default options for `listItems`, `listValues`, and `listKeys` calls
+   * to this store.
+   * These will be merged with (and overridden by) any per-call options.
+   */
+  listItemsOptions?: ListItemsOptions;
+
+  /**
+   * Default options for `getItems` calls to this store.
+   * These will be merged with (and overridden by) any per-call options.
+   */
+  getItemsOptions?: GetItemsOptions;
+
+  /**
+   * Default options for `batch` / `commit` calls to this store.
+   * These will be merged with (and overridden by) any per-call options.
+   */
+  batchOptions?: BatchOptions;
 }
 
 /**
- * Internal configuration for a single delegate store entry.
+ * Configuration for a single delegate store.
  * Stores are identified by an optional prefix key; the mapKey function
  * transforms incoming keys according to the prefix mapping.
  */
-export interface DelegatedStoreConfig {
-  /** The storage provider (may be a promise). */
+export interface DelegatedStoreConfig extends DelegatedStoreOptions {
+  /**
+   * The storage provider (may be a promise).
+   */
   store: Awaitable<StorageProvider>;
-  /** Key transformation function applied before delegation. */
+
+  /**
+   * Key transformation function applied before delegation.
+   */
   mapKey: KeyMapper;
 }
 
-/** Map key transformation function used by DelegatedStoreConfig. */
+/**
+ * Map key transformation function used by DelegatedStoreConfig.
+ */
 export type KeyMapper = (key: StorageKey) => StorageKey;
