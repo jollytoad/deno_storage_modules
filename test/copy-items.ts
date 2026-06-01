@@ -83,8 +83,51 @@ export async function testCopyItems(
     },
   });
 
+  await t.step({
+    ignore: !canSetItem(store) || !canHasItem(store) ||
+      !canGetItem(store) || !(canListItems(store) || canCopyItems(store)),
+    name: "copyItems (no item at prefix)",
+    fn: async () => {
+      // Only sub-items — no item at the source prefix itself
+      await setItem(store, [...prefix, "parent", "child"], "a");
+      await setItem(
+        store,
+        [...prefix, "parent", "deep", "grandchild"],
+        true,
+      );
+
+      await copyItems(store, [...prefix, "parent"], [...prefix, "copy"]);
+
+      assert(
+        await hasItem(store, [...prefix, "parent", "deep", "grandchild"]),
+        "Expected source sub-item to remain after copy",
+      );
+
+      assert(
+        await hasItem(store, [...prefix, "copy", "deep", "grandchild"]),
+        "Expected copied sub-item to exist at new prefix",
+      );
+
+      assert(
+        (await getItem(store, [...prefix, "parent"])) === undefined,
+        "Expected no item at source prefix after copy",
+      );
+
+      assert(
+        (await getItem(store, [...prefix, "copy"])) === undefined,
+        "Expected no item at destination prefix after copy",
+      );
+
+      const copied = [
+        ...await Array.fromAsync(listValues(store, [...prefix, "copy"])),
+      ];
+      assertArrayIncludes(copied, ["a", true]);
+    },
+  });
+
   await t.step("copyItems (clean up)", async () => {
     await clearItems(store, [...prefix, "original"]);
     await clearItems(store, [...prefix, "copied"]);
+    await clearItems(store, [...prefix, "copy"]);
   });
 }

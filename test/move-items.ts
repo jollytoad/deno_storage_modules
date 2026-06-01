@@ -81,8 +81,60 @@ export async function testMoveItems(
     },
   });
 
+  await t.step({
+    ignore: !canSetItem(store) || !canHasItem(store) ||
+      !canGetItem(store) || !(canMoveItems(store) || canListItems(store)),
+    name: "moveItems (no item at prefix)",
+    fn: async () => {
+      // Only sub-items — no item at the source prefix itself
+      await setItem(store, [...prefix, "parent", "child"], "a");
+      await setItem(
+        store,
+        [...prefix, "parent", "deep", "grandchild"],
+        true,
+      );
+
+      await moveItems(
+        store,
+        [...prefix, "parent"],
+        [...prefix, "moved-parent"],
+      );
+
+      const remaining = await Array.fromAsync(
+        listValues(store, [...prefix, "parent"]),
+      );
+      assertEquals(
+        remaining.length,
+        0,
+        "Expected no sub-items at source after move",
+      );
+
+      assert(
+        !await hasItem(store, [...prefix, "parent"]),
+        "Expected no item at source prefix after move",
+      );
+
+      const moved = [
+        ...await Array.fromAsync(
+          listValues(store, [...prefix, "moved-parent"]),
+        ),
+      ];
+      assertEquals(
+        moved.sort(),
+        ["a", true].sort(),
+        "Expected all sub-items at destination after move",
+      );
+
+      assert(
+        (await getItem(store, [...prefix, "moved-parent"])) === undefined,
+        "Expected no item at destination prefix after move",
+      );
+    },
+  });
+
   await t.step("moveItems (clean up)", async () => {
     await clearItems(store, [...prefix, "original"]);
     await clearItems(store, [...prefix, "moved"]);
+    await clearItems(store, [...prefix, "moved-parent"]);
   });
 }

@@ -161,7 +161,12 @@ export async function copyItems<T>(
   fromPrefix: StorageKey,
   toPrefix: StorageKey,
 ): Promise<void> {
-  await copy(filepath(fromPrefix), filepath(toPrefix), { overwrite: true });
+  try {
+    await copy(filepath(fromPrefix), filepath(toPrefix), { overwrite: true });
+  } catch (e) {
+    // no item stored at the exact key — may still have sub-items
+    if (!isNotFound(e)) throw e;
+  }
   await emptyDir(dirpath(toPrefix));
   await copy(dirpath(fromPrefix), dirpath(toPrefix), { overwrite: true });
 }
@@ -173,7 +178,12 @@ export async function moveItems<T>(
   fromPrefix: StorageKey,
   toPrefix: StorageKey,
 ): Promise<void> {
-  await move(filepath(fromPrefix), filepath(toPrefix), { overwrite: true });
+  try {
+    await move(filepath(fromPrefix), filepath(toPrefix), { overwrite: true });
+  } catch (e) {
+    // no item stored at the exact key — may still have sub-items
+    if (!isNotFound(e)) throw e;
+  }
   await move(dirpath(fromPrefix), dirpath(toPrefix), { overwrite: true });
 }
 

@@ -200,16 +200,28 @@ export async function copyItems<T>(
   toPrefix: StorageKey,
 ): Promise<void> {
   await fs.rm(filepath(toPrefix), { force: true });
-  await fs.copyFile(
-    filepath(fromPrefix),
-    filepath(toPrefix),
-    fs.constants.COPYFILE_FICLONE,
-  );
-  await fs.rm(dirpath(toPrefix), { recursive: true });
-  await fs.cp(dirpath(fromPrefix), dirpath(toPrefix), {
-    recursive: true,
-    mode: fs.constants.COPYFILE_FICLONE,
-  });
+  try {
+    await fs.copyFile(
+      filepath(fromPrefix),
+      filepath(toPrefix),
+      fs.constants.COPYFILE_FICLONE,
+    );
+  } catch (e) {
+    if (!isNotFound(e)) throw e;
+  }
+  try {
+    await fs.rm(dirpath(toPrefix), { recursive: true });
+  } catch (e) {
+    if (!isNotFound(e)) throw e;
+  }
+  try {
+    await fs.cp(dirpath(fromPrefix), dirpath(toPrefix), {
+      recursive: true,
+      mode: fs.constants.COPYFILE_FICLONE,
+    });
+  } catch (e) {
+    if (!isNotFound(e)) throw e;
+  }
 }
 
 /**
@@ -220,9 +232,21 @@ export async function moveItems<T>(
   toPrefix: StorageKey,
 ): Promise<void> {
   await fs.rm(filepath(toPrefix), { force: true });
-  await fs.rename(filepath(fromPrefix), filepath(toPrefix));
-  await fs.rm(dirpath(toPrefix), { recursive: true });
-  await fs.rename(dirpath(fromPrefix), dirpath(toPrefix));
+  try {
+    await fs.rename(filepath(fromPrefix), filepath(toPrefix));
+  } catch (e) {
+    if (!isNotFound(e)) throw e;
+  }
+  try {
+    await fs.rm(dirpath(toPrefix), { recursive: true });
+  } catch (e) {
+    if (!isNotFound(e)) throw e;
+  }
+  try {
+    await fs.rename(dirpath(fromPrefix), dirpath(toPrefix));
+  } catch (e) {
+    if (!isNotFound(e)) throw e;
+  }
 }
 
 function filepath(key: StorageKey) {
