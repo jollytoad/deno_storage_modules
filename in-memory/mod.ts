@@ -1,4 +1,3 @@
-import { fromStrKey, toStrKey } from "@storage/util/key-string";
 import type {
   ListItemsOptions,
   SetItemOptions,
@@ -14,14 +13,19 @@ import type {
   removeItem,
   listItems,
   listKeys,
+  listValues,
   close,
   url,
 }) satisfies StorageProvider;
 
-const SEP = "\0";
+interface Node {
+  value?: unknown;
+  children?: Map<string | number | boolean, Node>;
+  expiryTimer?: ReturnType<typeof setTimeout>;
+}
 
-const map = new Map<string, string>();
-const expiryTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const root: Node = {};
+const activeTimers = new Set<ReturnType<typeof setTimeout>>();
 
 /**
  * Returns the `import.meta.url` of the module.
@@ -32,7 +36,6 @@ export function url(): Promise<string> {
 
 /**
  * Check whether the storage is writable in general, or at or below a particular key.
- * There still may be some sub-keys that differ.
  */
 export function isWritable(_key?: StorageKey): Promise<boolean> {
   return Promise.resolve(true);
@@ -42,18 +45,14 @@ export function isWritable(_key?: StorageKey): Promise<boolean> {
  * Determine whether a value is set for the given key.
  */
 export function hasItem(key: StorageKey): Promise<boolean> {
-  return Promise.resolve(map.has(storageKey(key)));
+  return Promise.resolve(getNode(key)?.value !== undefined);
 }
 
 /**
  * Get a value for the given key.
  */
 export function getItem<T>(key: StorageKey): Promise<T | undefined> {
-  const json = map.get(storageKey(key));
-  if (json !== undefined) {
-    return Promise.resolve(JSON.parse(json));
-  }
-  return Promise.resolve(undefined);
+  return Promise.resolve(getNode(key)?.value as T | undefined);
 }
 
 /**
@@ -65,16 +64,21 @@ export function setItem<T>(
   value: T,
   options?: SetItemOptions,
 ): Promise<void> {
-  const sk = storageKey(key);
-  map.set(sk, JSON.stringify(value));
+  let node = root;
+  for (const segment of key) {
+    node.children ??= new Map();
+    node = node.children.getOrInsertComputed(segment, () => ({}));
+  }
+  node.value = value;
 
   if (options?.expireIn) {
-    clearExpiry(sk);
+    clearTimer(node);
     const timer = setTimeout(() => {
-      map.delete(sk);
-      expiryTimers.delete(sk);
+      node.value = undefined;
+      activeTimers.delete(timer);
     }, options.expireIn);
-    expiryTimers.set(sk, timer);
+    node.expiryTimer = timer;
+    activeTimers.add(timer);
   }
 
   return Promise.resolve();
@@ -84,65 +88,124 @@ export function setItem<T>(
  * Remove the value with the given key.
  */
 export function removeItem(key: StorageKey): Promise<void> {
-  const sk = storageKey(key);
-  map.delete(sk);
-  clearExpiry(sk);
+  let node = root;
+  const path: { node: Node; segment: string | number | boolean }[] = [];
+  for (const segment of key) {
+    const child = node.children?.get(segment);
+    if (!child) return Promise.resolve();
+    path.push({ node, segment });
+    node = child;
+  }
+
+  clearTimer(node);
+  node.value = undefined;
+
+  while (path.length > 0) {
+    const { node: parent, segment } = path.pop()!;
+    const child = parent.children!.get(segment)!;
+    if (child.value === undefined && !child.children?.size) {
+      parent.children!.delete(segment);
+    } else {
+      break;
+    }
+  }
+
   return Promise.resolve();
+}
+
+type ListResult<T, M extends 0 | 1 | 2> = M extends 0 ? [StorageKey, T]
+  : M extends 1 ? StorageKey
+  : T;
+
+async function* _list<T, M extends 0 | 1 | 2>(
+  keyPrefix: StorageKey,
+  mode: M,
+): AsyncIterable<ListResult<T, M>> {
+  const start = keyPrefix.length ? getNode(keyPrefix) : root;
+  if (!start) return;
+  const prefix = [...keyPrefix];
+  const stack: { node: Node; key: StorageKey }[] = [
+    { node: start, key: prefix },
+  ];
+  while (stack.length > 0) {
+    const { node, key } = stack.pop()!;
+    if (node.value !== undefined) {
+      switch (mode) {
+        case 0:
+          yield [key, node.value as T] as ListResult<T, M>;
+          break;
+        case 1:
+          yield key as ListResult<T, M>;
+          break;
+        case 2:
+          yield node.value as ListResult<T, M>;
+          break;
+      }
+    }
+    if (node.children) {
+      for (const [segment, child] of node.children) {
+        stack.push({ node: child, key: [...key, segment] });
+      }
+    }
+  }
 }
 
 /**
  * List all items beneath the given key prefix.
- * At present ordering is not guaranteed and reverse support is optional.
  */
-export async function* listItems<T>(
+export function listItems<T>(
   keyPrefix: StorageKey = [],
   _options?: ListItemsOptions,
 ): AsyncIterable<[StorageKey, T]> {
-  const prefix = keyPrefix.length ? storageKey(keyPrefix) + SEP : "";
-
-  for (const [key, json] of map) {
-    if (key.startsWith(prefix)) {
-      yield [fromStrKey(key.split(SEP)), JSON.parse(json)];
-    }
-  }
+  return _list<T, 0>(keyPrefix, 0);
 }
 
 /**
  * List all keys beneath the given key prefix.
  */
-export async function* listKeys(
-  prefix: StorageKey = [],
+export function listKeys(
+  keyPrefix: StorageKey = [],
   _options?: ListItemsOptions,
 ): AsyncIterable<StorageKey> {
-  const prefixStr = prefix.length ? storageKey(prefix) + SEP : "";
+  return _list<unknown, 1>(keyPrefix, 1);
+}
 
-  for (const key of map.keys()) {
-    if (key.startsWith(prefixStr)) {
-      yield fromStrKey(key.split(SEP));
-    }
-  }
+/**
+ * List all values beneath the given key prefix.
+ */
+export function listValues<T>(
+  keyPrefix: StorageKey = [],
+  _options?: ListItemsOptions,
+): AsyncIterable<T> {
+  return _list<T, 2>(keyPrefix, 2);
 }
 
 /**
  * Close the store, clearing all data and pending expiry timers.
  */
 export function close(): Promise<void> {
-  for (const timer of expiryTimers.values()) {
+  for (const timer of activeTimers) {
     clearTimeout(timer);
   }
-  expiryTimers.clear();
-  map.clear();
+  activeTimers.clear();
+  root.value = undefined;
+  root.children?.clear();
   return Promise.resolve();
 }
 
-function storageKey(key: StorageKey) {
-  return toStrKey(key).join(SEP);
+function getNode(key: StorageKey): Node | undefined {
+  let node: Node | undefined = root;
+  for (const segment of key) {
+    node = node.children?.get(segment);
+    if (!node) return undefined;
+  }
+  return node;
 }
 
-function clearExpiry(sk: string) {
-  const timer = expiryTimers.get(sk);
-  if (timer !== undefined) {
-    clearTimeout(timer);
-    expiryTimers.delete(sk);
+function clearTimer(node: Node): void {
+  if (node.expiryTimer !== undefined) {
+    clearTimeout(node.expiryTimer);
+    activeTimers.delete(node.expiryTimer);
+    node.expiryTimer = undefined;
   }
 }
