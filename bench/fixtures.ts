@@ -12,13 +12,13 @@ import { randomBetween, randomIntegerBetween, randomSeeded } from "@std/random";
  * value.
  */
 export function createTestItems(
-  n: number,
   prefix: StorageKey = ["bench"],
+  count = 100,
 ): Map<StorageKey, unknown> {
   const random = randomSeeded(42n);
   const items = new Map<StorageKey, unknown>();
 
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < count; i++) {
     const segments = [...prefix];
     const depth = randomIntegerBetween(1, 5, { prng: random });
     for (let d = 0; d < depth; d++) {

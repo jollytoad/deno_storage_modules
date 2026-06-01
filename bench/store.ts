@@ -1,4 +1,6 @@
-import type { StorageProvider } from "@storage/types";
+import type { StorageKey, StorageProvider } from "@storage/types";
+import { isWritable } from "@storage/fns/is-writable";
+import { createTestItems } from "./fixtures.ts";
 import { benchSetItem } from "./set-item.ts";
 import { benchGetItem } from "./get-item.ts";
 import { benchHasItem } from "./has-item.ts";
@@ -10,39 +12,28 @@ import { benchCopyItems } from "./copy-items.ts";
 import { benchMoveItems } from "./move-items.ts";
 import { benchBatch } from "./batch.ts";
 
-/**
- * Configuration for {@linkcode benchStore}
- */
-export interface BenchStoreOptions {
-  /** A name prefix for each benchmark (e.g. provider name) */
-  name?: string;
-  /** Number of items to use per benchmark sample (default: 100) */
-  iterations?: number;
-  /** Is the store expected to be readonly? */
-  readonly?: boolean;
-}
+const PREFIX: StorageKey = ["bench"];
 
 /**
  * Register `Deno.bench` benchmarks for all storage operations
  * on a `StorageProvider` via the `@storage/fns` functions.
  */
-export function benchStore(
+export async function benchStore(
   store: StorageProvider,
-  options?: BenchStoreOptions,
-): void {
-  const { name = "", iterations = 100, readonly } = options ?? {};
+): Promise<void> {
+  const items = createTestItems(PREFIX);
 
-  if (!readonly) {
-    benchSetItem(store, name, iterations);
-    benchRemoveItem(store, name, iterations);
-    benchClearItems(store, name, iterations);
-    benchCopyItems(store, name, iterations);
-    benchMoveItems(store, name, iterations);
-    benchBatch(store, name, iterations);
+  if (await isWritable(store)) {
+    await benchSetItem(store, items);
+    await benchRemoveItem(store, items);
+    await benchClearItems(store, items);
+    await benchCopyItems(store, items);
+    await benchMoveItems(store, items);
+    await benchBatch(store, items);
   }
 
-  benchGetItem(store, name, iterations);
-  benchHasItem(store, name, iterations);
-  benchGetItems(store, name, iterations);
-  benchList(store, name, iterations);
+  await benchGetItem(store, items);
+  await benchHasItem(store, items);
+  await benchGetItems(store, items);
+  await benchList(store, items);
 }
